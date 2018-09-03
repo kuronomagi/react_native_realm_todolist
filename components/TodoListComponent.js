@@ -6,6 +6,7 @@ import Swipeout from 'react-native-swipeout';
 
 import HeaderComponent from './HeaderComponent';
 import PopupDialogComponent from './PopupDialogComponents';
+import { SORT_ASCENDING, SORT_DESCENDING } from './sortStates';
 
 let FlatListItem = props => {
   const { itemIndex, id, name, creationDate, popupDialogComponent, onPressItem } = props;
@@ -38,17 +39,17 @@ let FlatListItem = props => {
       right={[
         {
           text: 'Edit',
-          backgroundColor: 'rgb(81, 134, 237)',
+          backgroundColor: '#ddd',
           onPress: showEditModal
         },
         {
           text: 'Delete',
-          backgroundColor: 'rgb(217, 80, 64)',
+          backgroundColor: '#F00',
           onPress: showDeleteConfirmation
         }
       ]} autoClose={true}>
         <TouchableOpacity onPress={onPressItem}>
-          <View style={{ backgroundColor: itemIndex % 2 == 0 ? 'powderblue' : 'skyblue' }} >
+          <View style={{ backgroundColor: itemIndex % 2 == 0 ? '#FFF' : '#FFF' }} >
             <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{name}</Text>
             <Text style={{fontSize: 18, margin: 10}} numberOfLines={2}>{creationDate.toLocaleString()}</Text>
           </View>
@@ -61,13 +62,22 @@ export default class TodoListComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      todoList: []
+      sortStates: SORT_ASCENDING,
+      todoLists: [],
+      MUSIC: []
     };
 
     this.reloadData();
     realm.addListener('change', () => {
       // Run this if 'realm' DB changed  'realm' DBが変更された場合はこれを実行してください
       this.reloadData();
+    });
+  }
+
+  sort = () => {
+    this.setState({
+      sortState: this.state.sortState === SORT_ASCENDING ? SORT_DESCENDING : SORT_ASCENDING,
+      todoLists: this.state.todoLists.sorted('creationDate', this.state.sortState === SORT_DESCENDING ? true: false)
     });
   }
 
@@ -81,6 +91,7 @@ export default class TodoListComponent extends Component {
   }
 
   render() {
+    console.log(realm.path);
     return (
       <View style={styles.container}>
         <HeaderComponent
@@ -92,6 +103,9 @@ export default class TodoListComponent extends Component {
               this.refs.popupDialogComponent.showDialogComponentForAdd();
             }
           }
+          hasSortButton={true}
+          sort={this.sort}
+          sortState={this.state.sortState}
         />
         <FlatList
           style={styles.flatList}
@@ -101,7 +115,7 @@ export default class TodoListComponent extends Component {
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
             popupDialogComponent={this.refs.popupDialogComponent}
           onPressItem={() => {
-            alert('You pressed item');
+            alert('クリックしたな!!!!');
           }} />}
           keyExtractor={item => item.id}
         />
@@ -115,7 +129,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
-    justifyContent: 'flex-start'
+    justifyContent: 'flex-start',
+    backgroundColor: '#eee'
   },
   flatList: {
     flex: 1,

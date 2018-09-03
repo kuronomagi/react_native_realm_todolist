@@ -9,12 +9,20 @@ import {
   Alert
 } from "react-native";
 
+// Delete all TodoLists
 import { deleteAllTodoLists } from '../databases/allSchemas';
+
+// sort
+import { SORT_ASCENEING, SORT_DESCENDING } from './sortStates';
 
   const HeaderComponent = props => {
     const { title, showAddTodoList, hasAddButton,
       hasSortButton, sort, sortState, hasDeleteAllButton
     } = props;
+
+    let sortIcon = sortState === SORT_ASCENEING ?
+      require('../images/sort-asc-icon.png'):
+      require('../images/sort-desc-icon.png');
 
     return (
       <View style={styles.container}>
@@ -25,9 +33,6 @@ import { deleteAllTodoLists } from '../databases/allSchemas';
           hasAddButtonの場合はこのTouchableOpacityを表示
           */
         }
-        {hasAddButton && <TouchableOpacity style={styles.addButton} onPress={showAddTodoList}>
-          <Image style={styles.addButtonImage} source={require('../images/add-icon.png')} />
-        </TouchableOpacity>}
 
         {hasDeleteAllButton && <TouchableOpacity style={styles.deleteButton} onPress={
           () => {
@@ -53,6 +58,14 @@ import { deleteAllTodoLists } from '../databases/allSchemas';
         }>
           <Image style={styles.deleteButtonImage} source={require('../images/delete-icon.png')} />
         </TouchableOpacity>}
+
+        {hasSortButton && <TouchableOpacity style={styles.addButton} onPress={sort}>
+          <Image style={styles.sortButtonImage} source={sortIcon}/>
+        </TouchableOpacity>}
+
+        {hasAddButton && <TouchableOpacity style={styles.addButton} onPress={showAddTodoList}>
+          <Image style={styles.addButtonImage} source={require('../images/add-icon.png')} />
+        </TouchableOpacity>}
       </View>
     );
   };
@@ -64,7 +77,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    backgroundColor: 'rgb(224, 93, 144)',
+    backgroundColor: '#ddd',
     height: Platform.OS === 'ios' ? 100 : 80,
   },
   titleText: {
