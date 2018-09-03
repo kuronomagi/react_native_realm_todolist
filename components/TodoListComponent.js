@@ -85,6 +85,8 @@ export default class TodoListComponent extends Component {
       <View style={styles.container}>
         <HeaderComponent
           title={'Todo List'}
+          hasAddButton={true}
+          hasDeleteAllButton={true}
           showAddTodoList={
             () => {
               this.refs.popupDialogComponent.showDialogComponentForAdd();

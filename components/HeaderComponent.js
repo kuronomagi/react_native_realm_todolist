@@ -9,6 +9,8 @@ import {
   Alert
 } from "react-native";
 
+import { deleteAllTodoLists } from '../databases/allSchemas';
+
   const HeaderComponent = props => {
     const { title, showAddTodoList, hasAddButton,
       hasSortButton, sort, sortState, hasDeleteAllButton
@@ -23,9 +25,34 @@ import {
           hasAddButtonの場合はこのTouchableOpacityを表示
           */
         }
-        <TouchableOpacity style={styles.hasAddButton} onPress={showAddTodoList}>
+        {hasAddButton && <TouchableOpacity style={styles.addButton} onPress={showAddTodoList}>
           <Image style={styles.addButtonImage} source={require('../images/add-icon.png')} />
-        </TouchableOpacity>
+        </TouchableOpacity>}
+
+        {hasDeleteAllButton && <TouchableOpacity style={styles.deleteButton} onPress={
+          () => {
+            Alert.alert(
+              'Delete all',
+              'Are you sure you want to delete all todoLists?',
+              [
+                {
+                  text: 'No', onPress: () => { }, // Do nothing
+                  style: 'cancel'
+                },
+                {
+                  text: 'Yes', onPress: () => {
+                    deleteAllTodoLists().then().catch(error => {
+                      alert(`Delete all TodoLists failed. Error = ${error}`);
+                    });
+                  }
+                },
+              ],
+              { cancelable: true }
+            );
+          }
+        }>
+          <Image style={styles.deleteButtonImage} source={require('../images/delete-icon.png')} />
+        </TouchableOpacity>}
       </View>
     );
   };
@@ -58,9 +85,19 @@ const styles = StyleSheet.create({
     marginRight: 10,
     marginTop: 30
   },
+  deleteButton: {
+    zIndex: 2,
+    marginRight: 10,
+    marginTop: 30
+  },
   addButtonImage: {
     width: 42,
     height: 42,
+    tintColor: 'white'
+  },
+  deleteButtonImage: {
+    width: 26,
+    height: 26,
     tintColor: 'white'
   }
 });
