@@ -25,7 +25,9 @@ let FlatListItem = props => {
         },
         {
           text: 'Yes', onPress: () => {
-
+            deleteTodoList(id).then().catch(error => {
+              alert(`Failed to delete todoList with id = ${id}, error=${error}`);
+            });
           }
         },
       ]
