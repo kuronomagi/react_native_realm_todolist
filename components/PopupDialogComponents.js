@@ -23,6 +23,18 @@ class PopupDialogComponent extends Component {
     };
   }
 
+  // Show dialog when update
+  showDialogComponentForUpdate = (existingTodoList) => {
+    this.refs.popupDialog.show();
+    this.setState({
+      dialogTitle: 'Update a TodoList',
+      id: existingTodoList.id,
+      name: existingTodoList.name,
+      isAddNew: false
+    });
+  }
+
+  // Show dialog when add new 'todoList
   showDialogComponentForAdd = () => {
     this.refs.popupDialog.show();
 
@@ -71,7 +83,14 @@ class PopupDialogComponent extends Component {
                         alert(`Insert new todoList error ${error}`);
                       });
                     } else {
+                      const todoList = {
+                        id: this.state.id,
+                        name: this.state.name,
+                      };
 
+                      updateTodoList(todoList).then().catch((error) => {
+                        alert(`Update todoList error ${error}`);
+                      });
                     }
                   });
                 }}>

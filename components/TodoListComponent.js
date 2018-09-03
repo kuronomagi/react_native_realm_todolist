@@ -10,7 +10,9 @@ import PopupDialogComponent from './PopupDialogComponents';
 let FlatListItem = props => {
   const { itemIndex, id, name, creationDate, popupDialogComponent, onPressItem } = props;
   showEditModal = () => {
-
+    popupDialogComponent.showDialogComponentForUpdate({
+      id, name
+    });
   }
   showDeleteConfirmation = () => {
     Alert.alert(
