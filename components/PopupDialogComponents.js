@@ -76,36 +76,44 @@ class PopupDialogComponent extends Component {
 
                   this.refs.popupDialog.dismiss(() => {
                     if (this.state.isAddNew == true) {
-                      const newTodoList = {
+                      // const newTodoList = {
+                      //   id: Math.floor(Date.now() /1000),
+                      //   name: this.state.name,
+                      //   title: new Date(),
+                      //   creationDate: new Date(),
+                      //   playlist: [
+                      //     {
+                      //       id: Math.floor(Date.now() /123),
+                      //       playlistKey: '1536146773', // 曲を追加するときに設定してあげる必要がある
+                      //       type: 'string',
+                      //       title: 'Good Goocbye',
+                      //       artist: 'ONE OK ROCK',
+                      //       albumTitle: 'test',
+                      //       albumArtUrl: 'https://www.google.co.jp/',
+                      //       audioUrl: 'https://www.google.co.jp/'
+                      //     },
+                      //     {
+                      //       id: Math.floor(Date.now() /456),
+                      //       playlistKey: '1536146773',
+                      //       type: 'string',
+                      //       title: '真夏のサイダー',
+                      //       artist: 'DAOKO',
+                      //       albumTitle: 'UTUTU',
+                      //       albumArtUrl: 'https://www.google.co.jp/',
+                      //       audioUrl: 'https://www.google.co.jp/'
+                      //     }
+                      //   ]
+                      // };
+
+                      const insertPlayListItem = {
                         id: Math.floor(Date.now() /1000),
                         name: this.state.name,
                         title: new Date(),
                         creationDate: new Date(),
-                        playlist: [
-                          {
-                            id: Math.floor(Date.now() /123),
-                            playlistKey: '1536146773', // 曲を追加するときに設定してあげる必要がある
-                            type: 'string',
-                            title: 'Good Goocbye',
-                            artist: 'ONE OK ROCK',
-                            albumTitle: 'test',
-                            albumArtUrl: 'https://www.google.co.jp/',
-                            audioUrl: 'https://www.google.co.jp/'
-                          },
-                          {
-                            id: Math.floor(Date.now() /456),
-                            playlistKey: '1536146773',
-                            type: 'string',
-                            title: '真夏のサイダー',
-                            artist: 'DAOKO',
-                            albumTitle: 'UTUTU',
-                            albumArtUrl: 'https://www.google.co.jp/',
-                            audioUrl: 'https://www.google.co.jp/'
-                          }
-                        ]
+                        //playlist: null
                       };
 
-                      insertNewTodoList(newTodoList).then().catch((error) => {
+                      insertNewTodoList(insertPlayListItem).then().catch((error) => {
                         alert(`Insert new todoList error ${error}`);
                       });
                     } else {

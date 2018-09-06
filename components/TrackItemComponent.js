@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { updateTodoList, deleteTodoList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack,
-  insertNewTrack, queryActiveTrak } from '../databases/allSchemas';
+import { updateTodoList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack,
+  insertNewTrack, queryActiveTrak, deleteTrackItem, insertTrackItem } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
@@ -9,41 +9,29 @@ import HeaderComponent from './HeaderComponent';
 import PopupDialogComponent from './PopupDialogComponents';
 
 
+insertPressItem = () => {
+  insertTrackItem().then().catch((error) => {
+    alert(`Insert new todoList error ${error}`);
+  });
+}
+
+
 let FlatListItem = props => {
-  const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId } = props;
+  const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
       id, name, title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId
     });
   }
   showDeleteConfirmation = () => {
-    Alert.alert(
-      'Delete',
-      'Delete a todoList',
-      [
-        {
-          text: 'No', onPress: () => { }, // Do nothing
-          style: 'cancel'
-        },
-        {
-          text: 'Yes', onPress: () => {
-            deleteTodoList(id).then().catch(error => {
-              alert(`Failed to delete todoList with id = ${id}, error=${error}`);
-            });
-          }
-        },
-      ]
-    )
+    deleteTrackItem(id).then().catch(error => {
+      alert(`Failed to delete todoList with id = ${id}, error=${error}`);
+    });
   }
 
   return (
     <Swipeout
       right={[
-        {
-          text: 'Edit',
-          backgroundColor: '#ddd',
-          onPress: showEditModal
-        },
         {
           text: 'Delete',
           backgroundColor: '#F00',
@@ -79,8 +67,8 @@ export default class TrackItemComponent extends Component {
   reloadData = () => {
 
     // react-navigateで第二引数をもってきている
-    // let playlistDetailId = this.props.navigation.state.params;
-    let playlistDetailId = '1536146773';
+    let playlistDetailId = this.props.navigation.state.params;
+    // let playlistDetailId = '1536217097';
     {console.log(playlistDetailId)}
 
     queryActiveTrak(playlistDetailId).then(queryActiveTrak => {
@@ -113,12 +101,18 @@ export default class TrackItemComponent extends Component {
             }).catch(error => {
               alert(`読み取れませんでした。 Error: ${JSON.stringify(error)}`)
             });
-
           }}
 
           />}
           keyExtractor={item => item.id}
         />
+
+        <TouchableOpacity
+          onPress={insertPressItem}
+        >
+          <Text>INSET BUTTON</Text>
+        </TouchableOpacity>
+
         <PopupDialogComponent ref={'popupDialogComponent'} />
       </View>
     );

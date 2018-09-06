@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { updateTodoList, deleteTodoList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack,
+import { updateTodoList, deletePlayList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack,
   insertNewTrack } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
@@ -43,7 +43,7 @@ let FlatListItem = props => {
         },
         {
           text: 'Yes', onPress: () => {
-            deleteTodoList(id).then().catch(error => {
+            deletePlayList(id).then().catch(error => {
               alert(`Failed to delete todoList with id = ${id}, error=${error}`);
             });
           }

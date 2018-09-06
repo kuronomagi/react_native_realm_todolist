@@ -25,7 +25,7 @@ export const TodoListSchema = {
     id: 'int',
     name: 'string',
     creationDate: 'date',
-    playlist: { type: 'list', objectType: TRACKS_SCHEMA },
+    // playlist: { type: 'list', objectType: TRACKS_SCHEMA },
   }
 };
 
@@ -37,10 +37,12 @@ const databaseOptions = {
 
 
 
+/* =================================================================
+* プレイリストページの設定
+================================================================= /*
 
-
-
-
+/* insertNewTrack
+ --------------------------------------------- */
 export const insertNewTrack = playlist => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
@@ -52,12 +54,9 @@ export const insertNewTrack = playlist => new Promise((resolve, reject) => {
 });
 
 
-
-
-
-
-
-// resolveは「Success」、rejectは「Failed」
+/* insertNewTodoList
+ * resolveは「Success」、rejectは「Failed」
+ --------------------------------------------- */
 export const insertNewTodoList = newTodoList => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
@@ -69,7 +68,8 @@ export const insertNewTodoList = newTodoList => new Promise((resolve, reject) =>
 });
 
 
-
+/* updateTodoList
+ --------------------------------------------- */
 export const updateTodoList = playLists => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
@@ -84,15 +84,16 @@ export const updateTodoList = playLists => new Promise((resolve, reject) => {
 });
 
 
-
-export const deleteTodoList = playlistId => new Promise((resolve, reject) => {
+/* deletePlayList
+ --------------------------------------------- */
+export const deletePlayList = playlistId => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
       let deletingTodoList = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistId);
 
-      // Delete 'playLists' => delete 'todos' of 'playLists' / 'playLists'の 'todos'を削除する
-      realm.delete(deletingTodoList.todos);
+      // Delete 'playLists' => delete 'playlist' of 'playLists' / 'playLists'の 'playlist'を削除する
+      realm.delete(deletingTodoList.playlist);
       realm.delete(deletingTodoList);
       resolve();
     });
@@ -100,7 +101,8 @@ export const deleteTodoList = playlistId => new Promise((resolve, reject) => {
 });
 
 
-
+/* deleteAllTodoLists
+ --------------------------------------------- */
 export const deleteAllTodoLists = () => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
@@ -109,10 +111,10 @@ export const deleteAllTodoLists = () => new Promise((resolve, reject) => {
       // TodoList tableのすべてのレコードを取得
       let allTodoLists = realm.objects(PLAYLISTS_SCHEMA);
 
-      // Delete'playLists' => delete 'todos' of 'playLists'
+      // Delete'playLists' => delete 'playlist' of 'playLists'
       for (let index in allTodoLists) {
         let eachTodoLists = allTodoLists[index];
-        realm.delete(eachTodoLists.todos);
+        realm.delete(eachTodoLists.playlist);
       }
       realm.delete(allTodoLists);
       resolve();
@@ -121,7 +123,8 @@ export const deleteAllTodoLists = () => new Promise((resolve, reject) => {
 });
 
 
-
+/* queryAllTodoLists
+ --------------------------------------------- */
 export const queryAllTodoLists = () => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
@@ -131,7 +134,122 @@ export const queryAllTodoLists = () => new Promise((resolve, reject) => {
 });
 
 
-// プレイリスト詳細ページの選択したリストIDをサーチ
+/* filterTodoLists
+ * 検索機能
+ --------------------------------------------- */
+export const filterTodoLists = (searchedText) => new Promise((resolve, reject) => {
+  // Realmオブジェクトを作成してローカルDBに保存
+  Realm.open(databaseOptions).then(realm => {
+    let filteredTodoLists = realm.objects(PLAYLISTS_SCHEMA)
+      // Like:name like %abc% in 'SQL'
+      .filtered(`name CONTAINS[c] "${searchedText}"`);
+
+    resolve(filteredTodoLists);
+  }).catch((error) => {
+    reject(error);
+  });
+});
+
+
+
+/* =================================================================
+* プレイリスト詳細ページの設定
+================================================================= /*
+
+/* insertTodos2TodoList
+ --------------------------------------------- */
+// 既存のTodoListにTodosの配列を追加する / Add array of Todos to an existing TodoList
+export const insertTodos2TodoList = (playlistId, newTodos) => new Promise((resolve, reject) => {
+
+  // Realmオブジェクトを作成してローカルDBに保存
+  Realm.open(databaseOptions).then(realm => {
+    let playLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistId);
+    realm.write(() => {
+
+      // Realmデータベースに「todos」の配列を追加する / Add an array of 'playlist to Realm database
+      for (let index in newTodos) {
+        playLists.playlist.push(newTodos[index]);
+      }
+
+      resolve(newTodos);
+    });
+  }).catch((error => {
+    reject(error);
+  }));
+});
+
+
+/* getPlaylistsTrack
+ --------------------------------------------- */
+// // クリックしたプレイリストIDをわたす
+export const getPlaylistsTrack = (playlistId) => new Promise((resolve, reject) => {
+  // Realmオブジェクトを作成してローカルDBに保存
+  Realm.open(databaseOptions).then(realm => {
+    let playLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistId);
+      resolve(playLists.playlist);
+  }).catch((error) => {
+      reject(error);
+  });
+});
+
+
+/* setPlaylistsData
+ --------------------------------------------- */
+export const setPlaylistsData = playLists => new Promise((resolve, reject) => {
+  // Realmオブジェクトを作成してローカルDBに保存
+  Realm.open(databaseOptions).then(realm => {
+    realm.write(() => {
+      let updatingPlayLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playLists.id);
+
+      // 必要に応じて他のフィールドを更新することができます
+      updatingPlayLists.name = playLists.playlist.title;
+      resolve();
+    });
+  }).catch((error) => reject(error));
+});
+
+
+/* insertTrackItem
+ --------------------------------------------- */
+export const insertTrackItem = () => new Promise((resolve, reject) => {
+  // Realmオブジェクトを作成してローカルDBに保存
+  Realm.open(databaseOptions).then(realm => {
+    realm.write(() => {
+      realm.create(TRACKS_SCHEMA, {
+        id: Math.floor(new Date()),
+        playlistKey: '1536217097', // 曲を追加するときに設定してあげる必要がある
+        type: 'string',
+        title: 'Good Goocbye',
+        artist: 'ONE OK ROCK',
+        albumTitle: 'test',
+        albumArtUrl: 'https://www.google.co.jp/',
+        audioUrl: 'https://www.google.co.jp/'
+      });
+      resolve();
+    });
+  }).catch((error) => reject(error));
+});
+
+/* deleteTrackItem
+ --------------------------------------------- */
+export const deleteTrackItem = playlistKey => new Promise((resolve, reject) => {
+  // Realmオブジェクトを作成してローカルDBに保存
+  Realm.open(databaseOptions).then(realm => {
+    realm.write(() => {
+      let deletingTrackList = realm.objectForPrimaryKey(TRACKS_SCHEMA, playlistKey);
+
+      // Delete 'playLists' => delete 'playlist' of 'playLists' / 'playLists'の 'playlist'を削除する
+      // realm.delete(deletingTrackList.playlist);
+      realm.delete(deletingTrackList);
+      resolve();
+    });
+  }).catch((error) => reject(error));
+});
+
+
+/* queryActiveTrak
+ * プレイリスト詳細ページの選択したリストIDをサーチ
+ --------------------------------------------- */
 export const queryActiveTrak = (playlistDetailId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
@@ -148,73 +266,6 @@ export const queryActiveTrak = (playlistDetailId) => new Promise((resolve, rejec
     reject(error);
   });
 });
-
-
-
-// 検索機能
-export const filterTodoLists = (searchedText) => new Promise((resolve, reject) => {
-  // Realmオブジェクトを作成してローカルDBに保存
-  Realm.open(databaseOptions).then(realm => {
-    let filteredTodoLists = realm.objects(PLAYLISTS_SCHEMA)
-      // Like:name like %abc% in 'SQL'
-      .filtered(`name CONTAINS[c] "${searchedText}"`);
-
-    resolve(filteredTodoLists);
-  }).catch((error) => {
-    reject(error);
-  });
-});
-
-
-
-// 既存のTodoListにTodosの配列を追加する / Add array of Todos to an existing TodoList
-export const insertTodos2TodoList = (playlistId, newTodos) => new Promise((resolve, reject) => {
-
-  // Realmオブジェクトを作成してローカルDBに保存
-  Realm.open(databaseOptions).then(realm => {
-    let playLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistId);
-    realm.write(() => {
-
-      // Realmデータベースに「todos」の配列を追加する / Add an array of 'todos to Realm database
-      for (let index in newTodos) {
-        playLists.todos.push(newTodos[index]);
-      }
-
-      resolve(newTodos);
-    });
-  }).catch((error => {
-    reject(error);
-  }));
-});
-
-
-
-// // クリックしたプレイリストIDをわたす
-export const getPlaylistsTrack = (playlistId) => new Promise((resolve, reject) => {
-  // Realmオブジェクトを作成してローカルDBに保存
-  Realm.open(databaseOptions).then(realm => {
-    let playLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistId);
-      resolve(playLists.todos);
-  }).catch((error) => {
-      reject(error);
-  });
-});
-
-
-
-export const setPlaylistsData = playLists => new Promise((resolve, reject) => {
-  // Realmオブジェクトを作成してローカルDBに保存
-  Realm.open(databaseOptions).then(realm => {
-    realm.write(() => {
-      let updatingPlayLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playLists.id);
-
-      // 必要に応じて他のフィールドを更新することができます
-      updatingPlayLists.name = playLists.playlist.title;
-      resolve();
-    });
-  }).catch((error) => reject(error));
-});
-
 
 
 
