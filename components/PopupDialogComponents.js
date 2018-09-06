@@ -19,6 +19,7 @@ class PopupDialogComponent extends Component {
     this.state = {
       id: 0,
       name: '',
+      title: '',
       isAddNew: true
     };
   }
@@ -29,6 +30,7 @@ class PopupDialogComponent extends Component {
     this.setState({
       dialogTitle: 'Update a TodoList',
       id: existingTodoList.id,
+      title: '',
       name: existingTodoList.name,
       isAddNew: false
     });
@@ -40,8 +42,9 @@ class PopupDialogComponent extends Component {
 
     // Clear data before insertiong  挿入前のデータを消去
     this.setState({
-      dialogTitle: 'Add a new TodoList',
+      dialogTitle: '新しいリストを追加します',
       name: '',
+      title: '',
       isAddNew: true
     });
   }
@@ -76,7 +79,30 @@ class PopupDialogComponent extends Component {
                       const newTodoList = {
                         id: Math.floor(Date.now() /1000),
                         name: this.state.name,
-                        creationDate: new Date()
+                        title: new Date(),
+                        creationDate: new Date(),
+                        playlist: [
+                          {
+                            id: Math.floor(Date.now() /123),
+                            playlistKey: '1536146773', // 曲を追加するときに設定してあげる必要がある
+                            type: 'string',
+                            title: 'Good Goocbye',
+                            artist: 'ONE OK ROCK',
+                            albumTitle: 'test',
+                            albumArtUrl: 'https://www.google.co.jp/',
+                            audioUrl: 'https://www.google.co.jp/'
+                          },
+                          {
+                            id: Math.floor(Date.now() /456),
+                            playlistKey: '1536146773',
+                            type: 'string',
+                            title: '真夏のサイダー',
+                            artist: 'DAOKO',
+                            albumTitle: 'UTUTU',
+                            albumArtUrl: 'https://www.google.co.jp/',
+                            audioUrl: 'https://www.google.co.jp/'
+                          }
+                        ]
                       };
 
                       insertNewTodoList(newTodoList).then().catch((error) => {
@@ -86,6 +112,7 @@ class PopupDialogComponent extends Component {
                       const todoList = {
                         id: this.state.id,
                         name: this.state.name,
+                        title: this.state.name,
                       };
 
                       updateTodoList(todoList).then().catch((error) => {

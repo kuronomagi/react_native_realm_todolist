@@ -11,6 +11,7 @@
     "react-native": "0.56.0",
     "react-native-popup-dialog": "^0.15.0",
     "react-native-swipeout": "^2.3.6",
+    "react-navigation": "^2.12.1",
     "realm": "^2.15.3"
   },
   "devDependencies": {

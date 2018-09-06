@@ -1,35 +1,19 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
 import { updateTodoList, deleteTodoList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack,
-  insertNewTrack } from '../databases/allSchemas';
+  insertNewTrack, queryActiveTrak } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
 import HeaderComponent from './HeaderComponent';
 import PopupDialogComponent from './PopupDialogComponents';
-import { SORT_ASCENDING, SORT_DESCENDING } from './sortStates';
-
-
-// const newTrack = {
-//   id: Math.floor(Date.now() /1000),
-//   type: 'string',
-//   title: 'Good Goocbye',
-//   artist: 'ONE OK ROCK',
-//   albumTitle: 'test',
-//   albumArtUrl: new Date(),
-//   audioUrl: new Date()
-// };
-
-// insertNewTrack(newTrack).then().catch((error) => {
-//   alert(`Insert new todoList error ${error}`);
-// });
 
 
 let FlatListItem = props => {
-  const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem } = props;
+  const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
-      id, name, title
+      id, name, title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId
     });
   }
   showDeleteConfirmation = () => {
@@ -51,6 +35,7 @@ let FlatListItem = props => {
       ]
     )
   }
+
   return (
     <Swipeout
       right={[
@@ -66,23 +51,23 @@ let FlatListItem = props => {
         }
       ]} autoClose={true}>
         <TouchableOpacity onPress={onPressItem}>
-          <View style={{ backgroundColor: itemIndex % 2 == 0 ? '#FFF' : '#FFF' }} >
-            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{name}</Text>
-            <Text style={{fontSize: 18, margin: 10}} numberOfLines={2}>{creationDate.toLocaleString()}</Text>
+          <View style={{ backgroundColor: itemIndex % 2 == 0 ? '#eee' : '#FFF' }} >
+            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{albumTitle}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 14, margin: 10 }}>{artist}</Text>
           </View>
         </TouchableOpacity>
     </Swipeout>
   );
 }
 
-export default class TodoListComponent extends Component {
+export default class TrackItemComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      sortStates: SORT_ASCENDING,
-      todoLists: [],
+      playList: [],
       searchedName: ''
     };
+
 
     this.reloadData();
     realm.addListener('change', () => {
@@ -91,76 +76,47 @@ export default class TodoListComponent extends Component {
     });
   }
 
-  sort = () => {
-    this.setState({
-      sortState: this.state.sortState === SORT_ASCENDING ? SORT_DESCENDING : SORT_ASCENDING,
-      todoLists: this.state.todoLists.sorted('creationDate', this.state.sortState === SORT_DESCENDING ? true: false)
-    });
-  }
-
   reloadData = () => {
-    queryAllTodoLists().then((todoLists) => {
-      this.setState({ todoLists: todoLists });
-    }).catch((error) => {
-      this.setState({ todoList: [] });
+
+    // react-navigateで第二引数をもってきている
+    // let playlistDetailId = this.props.navigation.state.params;
+    let playlistDetailId = '1536146773';
+    {console.log(playlistDetailId)}
+
+    queryActiveTrak(playlistDetailId).then(queryActiveTrak => {
+      console.log('成功');
+      this.setState({ playList: queryActiveTrak });
+      console.log(this.state.playList);
+    }).catch(error => {
+      console.log('失敗');
+      this.setState({ playList: [] });
     });
-    console.log('reloadData');
   }
 
   render() {
-    console.log(realm.path);
+
     return (
       <View style={styles.container}>
-        <HeaderComponent
-          title={'Todo List'}
-          hasAddButton={true}
-          hasDeleteAllButton={true}
-          showAddTodoList={
-            () => {
-              this.refs.popupDialogComponent.showDialogComponentForAdd();
-            }
-          }
-          hasSortButton={true}
-          sort={this.sort}
-          sortState={this.state.sortState}
-        />
-        <TextInput
-          style={styles.textInput}
-          placeholder='検索ワードを入力'
-          autoCorrect={false}
-          onChangeText={(text) => {
-            this.setState({ searchedName: text });
-            filterTodoLists(text).then(filterTodoLists => {
-              this.setState({ todoLists: filterTodoLists });
-            }).catch(error => {
-              this.setState({ todoLists: [] });
-            });
-          }}
-          value={this.state.searchedName}
-        />
+        <Text>Trackのコンポネ</Text>
+        {console.log('run')}
+        {console.log(this.state.playList)}
         <FlatList
           style={styles.flatList}
 
           // Save this array to 'state'
-          data={this.state.todoLists}
+          data={this.state.playList}
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
           popupDialogComponent={this.refs.popupDialogComponent}
           onPressItem={() => {
-
             getPlaylistsTrack(item.id).then(() => {
-
-              // 画面推移
-              this.props.navigation.navigate('todolist_detail_screen', item.id)
-
-
-              // 詳細ページでの照会につかう関数
-              // alert(`成功: ${JSON.stringify(item.id)}`);
-
+              console.log('描画');
             }).catch(error => {
               alert(`読み取れませんでした。 Error: ${JSON.stringify(error)}`)
             });
 
-          }} />}
+          }}
+
+          />}
           keyExtractor={item => item.id}
         />
         <PopupDialogComponent ref={'popupDialogComponent'} />
@@ -178,11 +134,13 @@ const styles = StyleSheet.create({
   },
   flatList: {
     flex: 1,
-    flexDirection: 'column'
+    flexDirection: 'column',
+    backgroundColor: 'skyblue'
   },
   textInput: {
     padding: 15,
     borderStyle: 'solid',
     borderColor: '#000',
+    backgroundColor: 'pink'
   }
 });
