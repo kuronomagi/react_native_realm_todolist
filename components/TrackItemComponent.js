@@ -9,13 +9,6 @@ import HeaderComponent from './HeaderComponent';
 import PopupDialogComponent from './PopupDialogComponents';
 
 
-insertPressItem = () => {
-  insertTrackItem().then().catch((error) => {
-    alert(`Insert new todoList error ${error}`);
-  });
-}
-
-
 let FlatListItem = props => {
   const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, } = props;
   showEditModal = () => {
@@ -70,6 +63,12 @@ export default class TrackItemComponent extends Component {
     let playlistDetailId = this.props.navigation.state.params;
     // let playlistDetailId = '1536217097';
     {console.log(playlistDetailId)}
+
+    insertPressItem = () => {
+      insertTrackItem(playlistDetailId).then().catch((error) => {
+        alert(`Insert new todoList error ${error}`);
+      });
+    }
 
     queryActiveTrak(playlistDetailId).then(queryActiveTrak => {
       console.log('成功');

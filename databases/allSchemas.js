@@ -25,7 +25,7 @@ export const TodoListSchema = {
     id: 'int',
     name: 'string',
     creationDate: 'date',
-    // playlist: { type: 'list', objectType: TRACKS_SCHEMA },
+    playlist: { type: 'list', objectType: TRACKS_SCHEMA },
   }
 };
 
@@ -211,24 +211,50 @@ export const setPlaylistsData = playLists => new Promise((resolve, reject) => {
 
 /* insertTrackItem
  --------------------------------------------- */
-export const insertTrackItem = () => new Promise((resolve, reject) => {
+// export const insertTrackItem = () => new Promise((resolve, reject) => {
+//   // Realmオブジェクトを作成してローカルDBに保存
+//   Realm.open(databaseOptions).then(realm => {
+//     realm.write(() => {
+//       realm.create(TRACKS_SCHEMA, {
+//         id: Math.floor(new Date()),
+//         playlistKey: '1536217097', // 曲を追加するときに設定してあげる必要がある
+//         type: 'string',
+//         title: 'Good Goocbye',
+//         artist: 'ONE OK ROCK',
+//         albumTitle: 'test',
+//         albumArtUrl: 'https://www.google.co.jp/',
+//         audioUrl: 'https://www.google.co.jp/'
+//       });
+//       resolve();
+//     });
+//   }).catch((error) => reject(error));
+// });
+
+export const insertTrackItem = (playlistDetailId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
+
+    let targetPlayList = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistDetailId);
+
     realm.write(() => {
-      realm.create(TRACKS_SCHEMA, {
-        id: Math.floor(new Date()),
-        playlistKey: '1536217097', // 曲を追加するときに設定してあげる必要がある
-        type: 'string',
-        title: 'Good Goocbye',
-        artist: 'ONE OK ROCK',
-        albumTitle: 'test',
-        albumArtUrl: 'https://www.google.co.jp/',
-        audioUrl: 'https://www.google.co.jp/'
-      });
+      const insertItem = {
+          id: Math.floor(new Date()),
+          playlistKey: '1536217097', // 曲を追加するときに設定してあげる必要がある
+          type: 'string',
+          title: 'Good Goocbye',
+          artist: 'ONE OK ROCK',
+          albumTitle: 'test',
+          albumArtUrl: 'https://www.google.co.jp/',
+          audioUrl: 'https://www.google.co.jp/'
+        };
+
+      targetPlayList.playlist.push(insertItem);
       resolve();
     });
+
   }).catch((error) => reject(error));
 });
+
 
 /* deleteTrackItem
  --------------------------------------------- */

@@ -10,6 +10,60 @@ import PopupDialogComponent from './PopupDialogComponents';
 import { SORT_ASCENDING, SORT_DESCENDING } from './sortStates';
 
 
+// file accses
+import { MainBundlePath, DocumentDirectoryPath } from 'react-native-fs';
+
+// InsertFetchAlbum
+import RNFetchBlob from 'react-native-fetch-blob';
+
+// // Zip Archive
+// import { zip, unzip, unzipAssets, subscribe } from 'react-native-zip-archive';
+
+//-------------　InsertFetchAlbum ここから --------------
+RNFetchBlob
+  .config({
+    fileCache : false,
+    // by adding this option, the temp files will have a file extension
+    appendExt : 'zip' // 拡張しを変えたいとき
+  })
+  .fetch('GET', 'https://github.com/kuronomagi/react-native-video-test/raw/master/music/example.zip', {
+    // some headers ..
+  })
+  .then((res) => {
+    console.log('fetch run');
+    // the temp file path with file extension `png`
+    console.log('ファイルを保存しました。 ', res.path());
+
+    // const zipPath = res.path();
+    // const ZipName = zipPath.split('/').filter(e => Boolean(e));
+    // console.log(ZipName);
+    // const resultZipName = ZipName[ZipName.length - 1];
+    // console.log(resultZipName);
+    // // Beware that when using a file path as Image source on Android,
+    // // you must prepend "file://"" before the file path
+    // // imageView = <Image source={{ uri : Platform.OS === 'android' ? 'file://' + res.path()  : '' + res.path() }}/>
+
+
+    // unZip
+    // const assetPath = `${DocumentDirectoryPath}/RNFetchBlob_tmp/${resultZipName}`;
+    // const targetPath = `${DocumentDirectoryPath}/audio`;
+    // console.log('unzipAssets before');
+    // console.log(DocumentDirectoryPath);
+    // unzipAssets(assetPath, targetPath)
+    // .then((path) => {
+    //   console.log(`解答が完了しました。保存先は ${path}です`);
+    // })
+    // .catch((error) => {
+    //   console.log(`解答に失敗しました。エラー詳細：${error}`);
+    // })
+  })
+//-------------　InsertFetchAlbum ここまで --------------
+
+
+
+
+
+
 // const newTrack = {
 //   id: Math.floor(Date.now() /1000),
 //   type: 'string',
