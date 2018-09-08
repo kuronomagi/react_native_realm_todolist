@@ -11,28 +11,26 @@ import { SORT_ASCENDING, SORT_DESCENDING } from './sortStates';
 
 
 // file accses
-import { MainBundlePath, DocumentDirectoryPath } from 'react-native-fs';
+import { fs } from 'react-native-fs';
 
 // InsertFetchAlbum
 import RNFetchBlob from 'react-native-fetch-blob';
-
-// // Zip Archive
-// import { zip, unzip, unzipAssets, subscribe } from 'react-native-zip-archive';
 
 //-------------　InsertFetchAlbum ここから --------------
 RNFetchBlob
   .config({
     fileCache : false,
     // by adding this option, the temp files will have a file extension
-    appendExt : 'zip' // 拡張しを変えたいとき
+    appendExt : 'mp3' // 拡張しを変えたいとき
   })
-  .fetch('GET', 'https://github.com/kuronomagi/react-native-video-test/raw/master/music/example.zip', {
+  .fetch('GET','https://github.com/kuronomagi/react-native-video-test/raw/master/music/artist_1/001/001.mp3', {
     // some headers ..
   })
   .then((res) => {
     console.log('fetch run');
     // the temp file path with file extension `png`
     console.log('ファイルを保存しました。 ', res.path());
+
 
     // const zipPath = res.path();
     // const ZipName = zipPath.split('/').filter(e => Boolean(e));

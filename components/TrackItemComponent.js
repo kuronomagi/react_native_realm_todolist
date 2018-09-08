@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { updateTodoList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack,
+import { updateTodoList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
   insertNewTrack, queryActiveTrak, deleteTrackItem, insertTrackItem } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
