@@ -1,19 +1,12 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { updateTodoList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack,
+import { updateTodoList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
   insertNewTrack, queryActiveTrak, deleteTrackItem, insertTrackItem } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
 import HeaderComponent from './HeaderComponent';
 import PopupDialogComponent from './PopupDialogComponents';
-
-
-insertPressItem = () => {
-  insertTrackItem().then().catch((error) => {
-    alert(`Insert new todoList error ${error}`);
-  });
-}
 
 
 let FlatListItem = props => {
@@ -70,6 +63,12 @@ export default class TrackItemComponent extends Component {
     let playlistDetailId = this.props.navigation.state.params;
     // let playlistDetailId = '1536217097';
     {console.log(playlistDetailId)}
+
+    insertPressItem = () => {
+      insertTrackItem(playlistDetailId).then().catch((error) => {
+        alert(`Insert new todoList error ${error}`);
+      });
+    }
 
     queryActiveTrak(playlistDetailId).then(queryActiveTrak => {
       console.log('成功');

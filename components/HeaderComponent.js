@@ -16,7 +16,7 @@ import { deleteAllTodoLists } from '../databases/allSchemas';
 import { SORT_ASCENEING, SORT_DESCENDING } from './sortStates';
 
   const HeaderComponent = props => {
-    const { title, showAddTodoList, hasAddButton,
+    const { title, showAddPlayList, hasAddButton,
       hasSortButton, sort, sortState, hasDeleteAllButton
     } = props;
 
@@ -63,7 +63,7 @@ import { SORT_ASCENEING, SORT_DESCENDING } from './sortStates';
           <Image style={styles.sortButtonImage} source={sortIcon}/>
         </TouchableOpacity>}
 
-        {hasAddButton && <TouchableOpacity style={styles.addButton} onPress={showAddTodoList}>
+        {hasAddButton && <TouchableOpacity style={styles.addButton} onPress={showAddPlayList}>
           <Image style={styles.addButtonImage} source={require('../images/add-icon.png')} />
         </TouchableOpacity>}
       </View>

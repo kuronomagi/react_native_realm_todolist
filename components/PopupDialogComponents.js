@@ -107,10 +107,10 @@ class PopupDialogComponent extends Component {
 
                       const insertPlayListItem = {
                         id: Math.floor(Date.now() /1000),
-                        name: this.state.name,
-                        title: new Date(),
-                        creationDate: new Date(),
-                        //playlist: null
+                        type: 'string',
+                        playlist_title: this.state.name,
+                        created_at: new Date(),
+                        update_at: new Date(),
                       };
 
                       insertNewTodoList(insertPlayListItem).then().catch((error) => {

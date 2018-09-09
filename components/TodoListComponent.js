@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { updateTodoList, deletePlayList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack,
+import { updateTodoList, deletePlayList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
   insertNewTrack } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
@@ -8,6 +8,30 @@ import Swipeout from 'react-native-swipeout';
 import HeaderComponent from './HeaderComponent';
 import PopupDialogComponent from './PopupDialogComponents';
 import { SORT_ASCENDING, SORT_DESCENDING } from './sortStates';
+
+
+// file accses
+
+// InsertFetchAlbum
+import RNFetchBlob from 'react-native-fetch-blob';
+
+//-------------　InsertFetchAlbum ここから --------------
+RNFetchBlob
+  .config({
+    fileCache : false,
+    // by adding this option, the temp files will have a file extension
+    appendExt : 'mp3' // 拡張しを変えたいとき
+  })
+  .fetch('GET','https://github.com/kuronomagi/react-native-video-test/raw/master/music/artist_1/001/001.mp3', {
+    // some headers ..
+  })
+  .then((res) => {
+    console.log('fetch run');
+    // the temp file path with file extension `png`
+    console.log('ファイルを保存しました。 ', res.path());
+  })
+//-------------　InsertFetchAlbum ここまで --------------
+
 
 
 // const newTrack = {
@@ -21,21 +45,21 @@ import { SORT_ASCENDING, SORT_DESCENDING } from './sortStates';
 // };
 
 // insertNewTrack(newTrack).then().catch((error) => {
-//   alert(`Insert new todoList error ${error}`);
+//   alert(`Insert new playList error ${error}`);
 // });
 
 
 let FlatListItem = props => {
-  const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem } = props;
+  const { itemIndex, id, title, playlist_title, creationDate, popupDialogComponent, onPressItem } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
-      id, name, title
+      id, title, playlist_title
     });
   }
   showDeleteConfirmation = () => {
     Alert.alert(
       'Delete',
-      'Delete a todoList',
+      'Delete a playList',
       [
         {
           text: 'No', onPress: () => { }, // Do nothing
@@ -44,7 +68,7 @@ let FlatListItem = props => {
         {
           text: 'Yes', onPress: () => {
             deletePlayList(id).then().catch(error => {
-              alert(`Failed to delete todoList with id = ${id}, error=${error}`);
+              alert(`Failed to delete playList with id = ${id}, error=${error}`);
             });
           }
         },
@@ -67,8 +91,7 @@ let FlatListItem = props => {
       ]} autoClose={true}>
         <TouchableOpacity onPress={onPressItem}>
           <View style={{ backgroundColor: itemIndex % 2 == 0 ? '#FFF' : '#FFF' }} >
-            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{name}</Text>
-            <Text style={{fontSize: 18, margin: 10}} numberOfLines={2}>{creationDate.toLocaleString()}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{playlist_title}</Text>
           </View>
         </TouchableOpacity>
     </Swipeout>
@@ -80,7 +103,7 @@ export default class TodoListComponent extends Component {
     super(props);
     this.state = {
       sortStates: SORT_ASCENDING,
-      todoLists: [],
+      playLists: [],
       searchedName: ''
     };
 
@@ -94,15 +117,15 @@ export default class TodoListComponent extends Component {
   sort = () => {
     this.setState({
       sortState: this.state.sortState === SORT_ASCENDING ? SORT_DESCENDING : SORT_ASCENDING,
-      todoLists: this.state.todoLists.sorted('creationDate', this.state.sortState === SORT_DESCENDING ? true: false)
+      playLists: this.state.playLists.sorted('creationDate', this.state.sortState === SORT_DESCENDING ? true: false)
     });
   }
 
   reloadData = () => {
-    queryAllTodoLists().then((todoLists) => {
-      this.setState({ todoLists: todoLists });
+    queryAllPlayLists().then((playLists) => {
+      this.setState({ playLists: playLists });
     }).catch((error) => {
-      this.setState({ todoList: [] });
+      this.setState({ playList: [] });
     });
     console.log('reloadData');
   }
@@ -112,10 +135,10 @@ export default class TodoListComponent extends Component {
     return (
       <View style={styles.container}>
         <HeaderComponent
-          title={'Todo List'}
+          title={'TPlay List'}
           hasAddButton={true}
           hasDeleteAllButton={true}
-          showAddTodoList={
+          showAddPlayList={
             () => {
               this.refs.popupDialogComponent.showDialogComponentForAdd();
             }
@@ -130,10 +153,10 @@ export default class TodoListComponent extends Component {
           autoCorrect={false}
           onChangeText={(text) => {
             this.setState({ searchedName: text });
-            filterTodoLists(text).then(filterTodoLists => {
-              this.setState({ todoLists: filterTodoLists });
+            filterPlayLists(text).then(filterPlayLists => {
+              this.setState({ playLists: filterPlayLists });
             }).catch(error => {
-              this.setState({ todoLists: [] });
+              this.setState({ playLists: [] });
             });
           }}
           value={this.state.searchedName}
@@ -142,7 +165,7 @@ export default class TodoListComponent extends Component {
           style={styles.flatList}
 
           // Save this array to 'state'
-          data={this.state.todoLists}
+          data={this.state.playLists}
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
           popupDialogComponent={this.refs.popupDialogComponent}
           onPressItem={() => {
@@ -151,10 +174,6 @@ export default class TodoListComponent extends Component {
 
               // 画面推移
               this.props.navigation.navigate('todolist_detail_screen', item.id)
-
-
-              // 詳細ページでの照会につかう関数
-              // alert(`成功: ${JSON.stringify(item.id)}`);
 
             }).catch(error => {
               alert(`読み取れませんでした。 Error: ${JSON.stringify(error)}`)

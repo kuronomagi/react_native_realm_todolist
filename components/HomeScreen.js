@@ -16,8 +16,6 @@ import {
 
 
 import TodoListComponent from './TodoListComponent';
-// import TodoListDetailComponent from './DetailScreen';
-
 import TrackItemComponent from './TrackItemComponent';
 
 

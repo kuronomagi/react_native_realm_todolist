@@ -1,37 +1,78 @@
 import Realm from 'realm';
-export const PLAYLISTS_SCHEMA = 'PlayLists';
-export const TRACKS_SCHEMA = 'Track';
+export const CATEGORIES_FRAMUALBUM_SCHEMA = 'CategoriesFramuAlbum';
+export const SONG_SCHEMA = 'Song';
+export const PLAYLIST_SCHEMA = 'PlayList';
+
+export const TRACK_SCHEMA = 'Track';
 
 // モデルとそのプロパティを定義
 export const TrackSchema = {
-  name: TRACKS_SCHEMA,
+  name: TRACK_SCHEMA,
   primaryKey: 'id',
   properties: {
-      id: 'int', // Primary key is not auto-increment
-      playlistKey: 'string',
+      id: 'int',
+      playlist_id: 'string', // プレイリストID
       type: 'string', // これがないとエラー
-      albumTitle: 'string',
-      title: 'string',
-      artist: 'string',
-      albumArtUrl: 'string',
-      audioUrl: 'string',
+      playlist_title: 'string', // プレイリストタイトル
+      created_at: 'date', // 作成日
+      update_at: 'date' // 更新日
   }
 };
 
-export const TodoListSchema = {
-  name: PLAYLISTS_SCHEMA,
+
+// 中間テーブル
+export const CategoriesFramuAlbumSchema = {
+  name: CATEGORIES_FRAMUALBUM_SCHEMA,
   primaryKey: 'id',
   properties: {
     id: 'int',
-    name: 'string',
-    creationDate: 'date',
-    // playlist: { type: 'list', objectType: TRACKS_SCHEMA },
+    song_id: { type: 'list', objectType: SONG_SCHEMA },
+    playlist_id: { type: 'list', objectType: PLAYLIST_SCHEMA },
   }
 };
 
+
+export const SongSchema = {
+  name : SONG_SCHEMA,
+  primaryKey: 'id',
+  properties: {
+    id: 'int', // 曲ID
+    title: 'string', // 曲名
+    title_sort: 'string', // 曲名（ソート）
+    album: 'string', // アルバム名
+    album_sort: 'string', // アルバム名（ソート）
+    album_srtist: 'string', // アルバムアーティスト
+    album_srtistSort: 'string', // アルバムアーティスト（ソート）
+    artist: 'string', // アーティスト名
+    artist_sort: 'string', // アーティスト名（ソート）
+    composer: 'string', // 作曲者
+    composer_sort: 'string', // 作曲者（ソート）
+    genre: 'string', // ジャンル
+    last_add_at: 'date', // 最後に追加した日
+    last_play_at: 'data', // 最後に再生した日
+    album_art_path: 'string',
+    audio_path: 'string',
+
+  }
+};
+
+
+export const PlaylistListSchema = {
+  name: PLAYLIST_SCHEMA,
+  primaryKey: 'id',
+  properties: {
+    id: 'int', // プレイリストID
+    type: 'string', // これがないとエラー
+    playlist_title: 'string', // プレイリストタイトル
+    created_at: 'date', // 作成日
+    update_at: 'date', // 更新日
+  }
+};
+
+
 const databaseOptions = {
   path: 'musicPlayListApp.realm',
-  schema: [TodoListSchema, TrackSchema], // スキーマはここに追加
+  schema: [PlaylistListSchema, SongSchema, CategoriesFramuAlbumSchema], // スキーマはここに追加
   schemaVersion: 0, // optional
 };
 
@@ -46,8 +87,9 @@ const databaseOptions = {
 export const insertNewTrack = playlist => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
+
     realm.write(() => {
-      realm.create(PLAYLISTS_SCHEMA, playlist);
+      realm.create(PLAYLIST_SCHEMA, playlist);
       resolve(playlist);
     });
   }).catch((error) => reject(error));
@@ -61,7 +103,7 @@ export const insertNewTodoList = newTodoList => new Promise((resolve, reject) =>
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      realm.create(PLAYLISTS_SCHEMA, newTodoList);
+      realm.create(PLAYLIST_SCHEMA, newTodoList);
       resolve(newTodoList);
     });
   }).catch((error) => reject(error));
@@ -74,7 +116,7 @@ export const updateTodoList = playLists => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let updatingTodoList = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playLists.id);
+      let updatingTodoList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playLists.id);
 
       // 必要に応じて他のフィールドを更新することができます
       updatingTodoList.name = playLists.name;
@@ -90,10 +132,10 @@ export const deletePlayList = playlistId => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let deletingTodoList = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistId);
+      let deletingTodoList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playlistId);
 
       // Delete 'playLists' => delete 'playlist' of 'playLists' / 'playLists'の 'playlist'を削除する
-      realm.delete(deletingTodoList.playlist);
+      // realm.delete(deletingTodoList.playlist);
       realm.delete(deletingTodoList);
       resolve();
     });
@@ -109,7 +151,7 @@ export const deleteAllTodoLists = () => new Promise((resolve, reject) => {
     realm.write(() => {
 
       // TodoList tableのすべてのレコードを取得
-      let allTodoLists = realm.objects(PLAYLISTS_SCHEMA);
+      let allTodoLists = realm.objects(PLAYLIST_SCHEMA);
 
       // Delete'playLists' => delete 'playlist' of 'playLists'
       for (let index in allTodoLists) {
@@ -123,24 +165,24 @@ export const deleteAllTodoLists = () => new Promise((resolve, reject) => {
 });
 
 
-/* queryAllTodoLists
+/* queryAllPlayLists
  --------------------------------------------- */
-export const queryAllTodoLists = () => new Promise((resolve, reject) => {
+export const queryAllPlayLists = () => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
-    let allTodoLists = realm.objects(PLAYLISTS_SCHEMA);
+    let allTodoLists = realm.objects(PLAYLIST_SCHEMA);
     resolve(allTodoLists);
   }).catch((error) => reject(error));
 });
 
 
-/* filterTodoLists
+/* filterPlayLists
  * 検索機能
  --------------------------------------------- */
-export const filterTodoLists = (searchedText) => new Promise((resolve, reject) => {
+export const filterPlayLists = (searchedText) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
-    let filteredTodoLists = realm.objects(PLAYLISTS_SCHEMA)
+    let filteredTodoLists = realm.objects(PLAYLIST_SCHEMA)
       // Like:name like %abc% in 'SQL'
       .filtered(`name CONTAINS[c] "${searchedText}"`);
 
@@ -163,7 +205,7 @@ export const insertTodos2TodoList = (playlistId, newTodos) => new Promise((resol
 
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
-    let playLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistId);
+    let playLists = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playlistId);
     realm.write(() => {
 
       // Realmデータベースに「todos」の配列を追加する / Add an array of 'playlist to Realm database
@@ -185,7 +227,7 @@ export const insertTodos2TodoList = (playlistId, newTodos) => new Promise((resol
 export const getPlaylistsTrack = (playlistId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
-    let playLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playlistId);
+    let playLists = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playlistId);
       resolve(playLists.playlist);
   }).catch((error) => {
       reject(error);
@@ -199,7 +241,7 @@ export const setPlaylistsData = playLists => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let updatingPlayLists = realm.objectForPrimaryKey(PLAYLISTS_SCHEMA, playLists.id);
+      let updatingPlayLists = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playLists.id);
 
       // 必要に応じて他のフィールドを更新することができます
       updatingPlayLists.name = playLists.playlist.title;
@@ -211,24 +253,58 @@ export const setPlaylistsData = playLists => new Promise((resolve, reject) => {
 
 /* insertTrackItem
  --------------------------------------------- */
-export const insertTrackItem = () => new Promise((resolve, reject) => {
+// export const insertTrackItem = () => new Promise((resolve, reject) => {
+//   // Realmオブジェクトを作成してローカルDBに保存
+//   Realm.open(databaseOptions).then(realm => {
+//     realm.write(() => {
+//       realm.create(TRACK_SCHEMA, {
+//         id: Math.floor(new Date()),
+//         playlistKey: '1536217097', // 曲を追加するときに設定してあげる必要がある
+//         type: 'string',
+//         title: 'Good Goocbye',
+//         artist: 'ONE OK ROCK',
+//         playlist_title: 'test',
+//         albumArtUrl: 'https://www.google.co.jp/',
+//         audioUrl: 'https://www.google.co.jp/'
+//       });
+//       resolve();
+//     });
+//   }).catch((error) => reject(error));
+// });
+
+export const insertTrackItem = (playlistDetailId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
+
+    let targetPlayList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playlistDetailId);
+
     realm.write(() => {
-      realm.create(TRACKS_SCHEMA, {
-        id: Math.floor(new Date()),
-        playlistKey: '1536217097', // 曲を追加するときに設定してあげる必要がある
-        type: 'string',
-        title: 'Good Goocbye',
-        artist: 'ONE OK ROCK',
-        albumTitle: 'test',
-        albumArtUrl: 'https://www.google.co.jp/',
-        audioUrl: 'https://www.google.co.jp/'
-      });
+      const insertItem = {
+          songId: Math.floor(new Date()), // 曲ID
+          title: 'Good Goodbye', // 曲名
+          titleSort: 'ぐっどぐっばい', // 曲名（ソート）
+          album: '35xxxv', // アルバム名
+          albumSort: '35xxxv', // アルバム名（ソート）
+          albumArtist: 'ONE OK ROCK', // アルバムアーティスト
+          albumArtistSort: 'ワンオクロック', // アルバムアーティスト（ソート）
+          artist: 'ONE OK ROCK', // アーティスト名
+          artist_sort: 'ワンオクロック', // アーティスト名（ソート）
+          composer: 'Taka', // 作曲者
+          composerSort: 'たか', // 作曲者（ソート）
+          genre: 'ROCK', // ジャンル
+          lastAddAt: new Date(), // 最後に追加した日
+          lastPlayAt: new Date(), // 最後に再生した日
+          albumArtPath: 'https://www.google.co.jp/',
+          audioPath: 'https://www.google.co.jp/'
+        };
+
+      targetPlayList.playlist.push(insertItem);
       resolve();
     });
+
   }).catch((error) => reject(error));
 });
+
 
 /* deleteTrackItem
  --------------------------------------------- */
@@ -236,7 +312,7 @@ export const deleteTrackItem = playlistKey => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let deletingTrackList = realm.objectForPrimaryKey(TRACKS_SCHEMA, playlistKey);
+      let deletingTrackList = realm.objectForPrimaryKey(TRACK_SCHEMA, playlistKey);
 
       // Delete 'playLists' => delete 'playlist' of 'playLists' / 'playLists'の 'playlist'を削除する
       // realm.delete(deletingTrackList.playlist);
@@ -253,7 +329,7 @@ export const deleteTrackItem = playlistKey => new Promise((resolve, reject) => {
 export const queryActiveTrak = (playlistDetailId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
-    let targetTrak = realm.objects(TRACKS_SCHEMA)
+    let targetTrak = realm.objects(TRACK_SCHEMA)
       // Like:name like %abc% in 'SQL'
       // .filtered('id = 1536139059');
       // .filtered(`id = ${playlistDetailId}`);
