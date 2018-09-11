@@ -10,10 +10,12 @@ import PopupDialogComponent from './PopupDialogComponents';
 import { SORT_ASCENDING, SORT_DESCENDING } from './sortStates';
 
 
-// file accses
-
 // InsertFetchAlbum
-import RNFetchBlob from 'react-native-fetch-blob';
+import RNFetchBlob from 'rn-fetch-blob';
+
+// mp3 id3tag
+
+import RNMusicMetadata from 'react-native-music-metadata';
 
 //-------------　InsertFetchAlbum ここから --------------
 RNFetchBlob
@@ -29,24 +31,32 @@ RNFetchBlob
     console.log('fetch run');
     // the temp file path with file extension `png`
     console.log('ファイルを保存しました。 ', res.path());
+
+    const mp3DataPath = res.path();
+    console.log(mp3DataPath);
+
+    RNMusicMetadata.getMetadata([mp3DataPath])
+      .then((tracks) => {
+        tracks.forEach((track) => {
+          console.log(track);
+          console.log(`${track.title} by ${track.artist}`);
+          console.log(`${track.albumName}`);
+          console.log(`${track.albumArtist}`);
+          console.log(`${track.artist}`);
+          console.log(`${track.uri}`);
+          console.log(`${track.duration}`);
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+
+
+
   })
+
 //-------------　InsertFetchAlbum ここまで --------------
 
-
-
-// const newTrack = {
-//   id: Math.floor(Date.now() /1000),
-//   type: 'string',
-//   title: 'Good Goocbye',
-//   artist: 'ONE OK ROCK',
-//   albumTitle: 'test',
-//   albumArtUrl: new Date(),
-//   audioUrl: new Date()
-// };
-
-// insertNewTrack(newTrack).then().catch((error) => {
-//   alert(`Insert new playList error ${error}`);
-// });
 
 
 let FlatListItem = props => {
@@ -129,6 +139,8 @@ export default class TodoListComponent extends Component {
     });
     console.log('reloadData');
   }
+
+
 
   render() {
     console.log(realm.path);

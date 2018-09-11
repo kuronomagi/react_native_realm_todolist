@@ -137,6 +137,11 @@ android {
 }
 
 dependencies {
+    compile project(':rn-fetch-blob')
+    compile project(':react-native-music-metadata')
+    compile project(':react-native-get-music-files')
+    compile project(':react-native-fs')
+    compile project(':react-native-media-meta')
     compile project(':react-native-fetch-blob')
     compile project(':realm')
     compile fileTree(dir: "libs", include: ["*.jar"])

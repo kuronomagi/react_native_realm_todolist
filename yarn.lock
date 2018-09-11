@@ -4521,12 +4521,13 @@ react-native-drawer-layout@1.3.2:
   dependencies:
     react-native-dismiss-keyboard "1.0.0"
 
-react-native-fetch-blob@^0.10.8:
-  version "0.10.8"
-  resolved "https://registry.yarnpkg.com/react-native-fetch-blob/-/react-native-fetch-blob-0.10.8.tgz#4fc256abae0cb5f10e7c41f28c11b3ff330d72a9"
-  dependencies:
-    base-64 "0.1.0"
-    glob "7.0.6"
+react-native-music-metadata@^0.0.2:
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-music-metadata/-/react-native-music-metadata-0.0.2.tgz#d4567c8143b1f8ed676a173d5a351cb9429c3a03"
+
+react-native-permissions@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-native-permissions/-/react-native-permissions-1.1.1.tgz#4876004681ff8556454613d85249b01baff9b35b"
 
 react-native-popup-dialog@^0.15.0:
   version "0.15.0"
@@ -4966,6 +4967,13 @@ rimraf@^2.5.4, rimraf@^2.6.1:
 rimraf@~2.2.6:
   version "2.2.8"
   resolved "http://registry.npmjs.org/rimraf/-/rimraf-2.2.8.tgz#e439be2aaee327321952730f99a8929e4fc50582"
+
+rn-fetch-blob@^0.10.13:
+  version "0.10.13"
+  resolved "https://registry.yarnpkg.com/rn-fetch-blob/-/rn-fetch-blob-0.10.13.tgz#e0fd5eac1a3a872563b35061353d96c4e51ae1cc"
+  dependencies:
+    base-64 "0.1.0"
+    glob "7.0.6"
 
 rsvp@^3.3.3:
   version "3.6.2"
