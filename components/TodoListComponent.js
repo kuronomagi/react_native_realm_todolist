@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
+import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput, NativeModules} from 'react-native';
 import { updateTodoList, deletePlayList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
   insertNewTrack } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
@@ -29,10 +29,12 @@ RNFetchBlob
     console.log('fetch run');
     // the temp file path with file extension `png`
     console.log('ファイルを保存しました。 ', res.path());
+
+    NativeModules.Mp3GetAll.getFile();
+    NativeModules.Mp3GetAll.viewDidLoad();
+    NativeModules.Mp3GetAll.didReceiveMemoryWarning();
   })
 //-------------　InsertFetchAlbum ここまで --------------
-
-
 
 // const newTrack = {
 //   id: Math.floor(Date.now() /1000),
@@ -161,6 +163,11 @@ export default class TodoListComponent extends Component {
           }}
           value={this.state.searchedName}
         />
+        <TouchableOpacity
+          onPress={() => NativeModules.Mp3GetAll.getFile()}
+        >
+        <Text>BUTTON</Text>
+        </TouchableOpacity>
         <FlatList
           style={styles.flatList}
 
