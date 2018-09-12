@@ -87,9 +87,8 @@ class Mp3GetAll: UIViewController {
             
             // 画像を読み込んで表示させる
             // imageView.image = artwork.imageWithSize(artwork.bounds.size)
-            
             print("アートワーク: \(artwork)")
-            print("画像パス: \(artwork.imageWithSize(artwork.bounds.size))")
+            print("画像パス: \(artwork.image(at:artwork.bounds.size))")
           }
           
           
