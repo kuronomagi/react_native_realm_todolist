@@ -14,11 +14,10 @@ export const TrackSchema = {
       playlist_id: 'string', // プレイリストID
       type: 'string', // これがないとエラー
       playlist_title: 'string', // プレイリストタイトル
-      created_at: 'date', // 作成日
-      update_at: 'date' // 更新日
+      created_at: 'string', // 作成日
+      update_at: 'string' // 更新日
   }
 };
-
 
 // 中間テーブル
 export const CategoriesFramuAlbumSchema = {
@@ -36,23 +35,25 @@ export const SongSchema = {
   name : SONG_SCHEMA,
   primaryKey: 'id',
   properties: {
-    id: 'int', // 曲ID
+    id: 'int',
+    song_id: 'string', // 曲ID
+    song: 'string',
     title: 'string', // 曲名
     title_sort: 'string', // 曲名（ソート）
     album: 'string', // アルバム名
     album_sort: 'string', // アルバム名（ソート）
-    album_srtist: 'string', // アルバムアーティスト
-    album_srtistSort: 'string', // アルバムアーティスト（ソート）
+    album_artist: 'string', // アルバムアーティスト
+    album_artist_sort: 'string', // アルバムアーティスト（ソート）
     artist: 'string', // アーティスト名
     artist_sort: 'string', // アーティスト名（ソート）
     composer: 'string', // 作曲者
     composer_sort: 'string', // 作曲者（ソート）
     genre: 'string', // ジャンル
+    release_year: 'date',
     last_add_at: 'date', // 最後に追加した日
-    last_play_at: 'data', // 最後に再生した日
-    album_art_path: 'string',
-    audio_path: 'string',
-
+    last_play_at: 'date', // 最後に再生した日
+    primary_artwork: 'string',
+    secondary_artwork: 'string',
   }
 };
 
@@ -76,6 +77,37 @@ const databaseOptions = {
   schemaVersion: 0, // optional
 };
 
+
+/* =================================================================
+* ダウンロードしたアルバムデータをRealmへ保存
+================================================================= /*
+
+/* saveNewSong
+ --------------------------------------------- */
+//  export const saveNewSong = track => new Promise((resolve, reject) => {
+//   // Realmオブジェクトを作成してローカルDBに保存
+//   Realm.open(databaseOptions).then(realm => {
+
+//     realm.write(() => {
+//       realm.create(SONG_SCHEMA, track);
+//       resolve(track);
+//     });
+//   }).catch((error) => reject(error));
+// });
+
+
+
+export const saveNewSong = (track) => new Promise((resolve, reject) => {
+  // Realmオブジェクトを作成してローカルDBに保存
+  Realm.open(databaseOptions).then(realm => {
+
+    realm.write(() => {
+      realm.create(SONG_SCHEMA, track)
+      resolve();
+    });
+
+  }).catch((error) => reject(error));
+});
 
 
 /* =================================================================
@@ -253,54 +285,35 @@ export const setPlaylistsData = playLists => new Promise((resolve, reject) => {
 
 /* insertTrackItem
  --------------------------------------------- */
-// export const insertTrackItem = () => new Promise((resolve, reject) => {
-//   // Realmオブジェクトを作成してローカルDBに保存
-//   Realm.open(databaseOptions).then(realm => {
-//     realm.write(() => {
-//       realm.create(TRACK_SCHEMA, {
-//         id: Math.floor(new Date()),
-//         playlistKey: '1536217097', // 曲を追加するときに設定してあげる必要がある
-//         type: 'string',
-//         title: 'Good Goocbye',
-//         artist: 'ONE OK ROCK',
-//         playlist_title: 'test',
-//         albumArtUrl: 'https://www.google.co.jp/',
-//         audioUrl: 'https://www.google.co.jp/'
-//       });
-//       resolve();
-//     });
-//   }).catch((error) => reject(error));
-// });
-
 export const insertTrackItem = (playlistDetailId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
 
     let targetPlayList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playlistDetailId);
 
-    realm.write(() => {
-      const insertItem = {
-          songId: Math.floor(new Date()), // 曲ID
-          title: 'Good Goodbye', // 曲名
-          titleSort: 'ぐっどぐっばい', // 曲名（ソート）
-          album: '35xxxv', // アルバム名
-          albumSort: '35xxxv', // アルバム名（ソート）
-          albumArtist: 'ONE OK ROCK', // アルバムアーティスト
-          albumArtistSort: 'ワンオクロック', // アルバムアーティスト（ソート）
-          artist: 'ONE OK ROCK', // アーティスト名
-          artist_sort: 'ワンオクロック', // アーティスト名（ソート）
-          composer: 'Taka', // 作曲者
-          composerSort: 'たか', // 作曲者（ソート）
-          genre: 'ROCK', // ジャンル
-          lastAddAt: new Date(), // 最後に追加した日
-          lastPlayAt: new Date(), // 最後に再生した日
-          albumArtPath: 'https://www.google.co.jp/',
-          audioPath: 'https://www.google.co.jp/'
-        };
+    // realm.write(() => {
+    //   const insertItem = {
+    //       songId: Math.floor(new Date()), // 曲ID
+    //       title: 'Good Goodbye', // 曲名
+    //       titleSort: 'ぐっどぐっばい', // 曲名（ソート）
+    //       album: '35xxxv', // アルバム名
+    //       albumSort: '35xxxv', // アルバム名（ソート）
+    //       albumArtist: 'ONE OK ROCK', // アルバムアーティスト
+    //       albumArtistSort: 'ワンオクロック', // アルバムアーティスト（ソート）
+    //       artist: 'ONE OK ROCK', // アーティスト名
+    //       artist_sort: 'ワンオクロック', // アーティスト名（ソート）
+    //       composer: 'Taka', // 作曲者
+    //       composerSort: 'たか', // 作曲者（ソート）
+    //       genre: 'ROCK', // ジャンル
+    //       lastAddAt: new Date(), // 最後に追加した日
+    //       lastPlayAt: new Date(), // 最後に再生した日
+    //       albumArtPath: 'https://www.google.co.jp/',
+    //       audioPath: 'https://www.google.co.jp/'
+    //     };
 
-      targetPlayList.playlist.push(insertItem);
-      resolve();
-    });
+    //   targetPlayList.playlist.push(insertItem);
+    //   resolve();
+    // });
 
   }).catch((error) => reject(error));
 });

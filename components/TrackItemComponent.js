@@ -66,7 +66,7 @@ export default class TrackItemComponent extends Component {
 
     insertPressItem = () => {
       insertTrackItem(playlistDetailId).then().catch((error) => {
-        alert(`Insert new todoList error ${error}`);
+        alert(`IinsertPressItem error ${error}`);
       });
     }
 

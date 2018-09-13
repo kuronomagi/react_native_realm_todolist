@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput, NativeModules} from 'react-native';
 import { updateTodoList, deletePlayList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
-  insertNewTrack } from '../databases/allSchemas';
+  insertNewTrack, saveNewSong, SongSchema } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
@@ -15,6 +15,7 @@ import { SORT_ASCENDING, SORT_DESCENDING } from './sortStates';
 // InsertFetchAlbum
 import RNFetchBlob from 'react-native-fetch-blob';
 
+console.log(realm.path);
 //-------------　InsertFetchAlbum ここから --------------
 RNFetchBlob
   .config({
@@ -34,21 +35,7 @@ RNFetchBlob
     NativeModules.Mp3GetAll.viewDidLoad();
     NativeModules.Mp3GetAll.didReceiveMemoryWarning();
   })
-//-------------　InsertFetchAlbum ここまで --------------
-
-// const newTrack = {
-//   id: Math.floor(Date.now() /1000),
-//   type: 'string',
-//   title: 'Good Goocbye',
-//   artist: 'ONE OK ROCK',
-//   albumTitle: 'test',
-//   albumArtUrl: new Date(),
-//   audioUrl: new Date()
-// };
-
-// insertNewTrack(newTrack).then().catch((error) => {
-//   alert(`Insert new playList error ${error}`);
-// });
+//-------------　InsertFetchAlbum ここまで -------------
 
 
 let FlatListItem = props => {
@@ -114,6 +101,66 @@ export default class TodoListComponent extends Component {
       // Run this if 'realm' DB changed  'realm' DBが変更された場合はこれを実行してください
       this.reloadData();
     });
+  }
+
+  componentWillMount() {
+    this._fetch();
+  }
+
+  // _fetch = () => {
+  //   RNFetchBlob
+  //   .config({
+  //     fileCache : false,
+  //   })
+  //   .fetch('GET','https://github.com/kuronomagi/react-native-video-test/raw/master/music/alubum.json', {
+  //   })
+  //   .then((res) => {
+  //     console.log('fetch run');
+  //   })
+  // }
+
+  _fetch = () => {
+    console.log('jsonにアクセス');
+    fetch('https://github.com/kuronomagi/react-native-video-test/raw/master/music/alubum.json')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        let albumData = responseJson;
+        console.log(albumData);
+        console.log(new Date());
+
+        console.log(albumData[0].song);
+
+        const TarckPreference = {
+          id: Math.floor(Date.now() /1000),
+          song_id: albumData[0].song_id, // 曲ID
+          song: albumData[0].song,
+          title: albumData[0].title, // 曲名
+          title_sort: albumData[0].title_sort, // 曲名（ソート）
+          album: albumData[0].album, // アルバム名
+          album_sort: albumData[0].album_sort, // アルバム名（ソート）
+          album_artist: albumData[0].artist, // アルバムアーティスト
+          album_artist_sort: albumData[0].artist_sort, // アルバムアーティスト（ソート）
+          artist: albumData[0].artist, // アーティスト名
+          artist_sort: albumData[0].artist_sort, // アーティスト名（ソート）
+          composer: albumData[0].composer, // 作曲者
+          composer_sort: albumData[0].composer_sort, // 作曲者（ソート）
+          genre: albumData[0].genre, // ジャンル
+          release_year: albumData[0].release_year,
+          last_add_at: new Date(), // 最後に追加した日
+          last_play_at: new Date(), // 最後に再生した日
+          primary_artwork: albumData[0].primary_artwork,
+          secondary_artwork: albumData[0].secondary_artwork,
+        };
+
+        saveNewSong(TarckPreference).then(console.log('成功')).catch((error) => {
+          alert(`TarckPreference error ${error}`);
+        });
+
+
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   sort = () => {
