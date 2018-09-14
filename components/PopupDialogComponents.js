@@ -11,14 +11,14 @@ import {
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
 
 // Database
-import { insertNewTodoList, updateTodoList } from '../databases/allSchemas';
+import { insertNewTodoList, updatePlayListTitle } from '../databases/allSchemas';
 
 class PopupDialogComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
       id: 0,
-      name: '',
+      playlist_title: '',
       title: '',
       isAddNew: true
     };
@@ -26,24 +26,26 @@ class PopupDialogComponent extends Component {
 
   // Show dialog when update
   showDialogComponentForUpdate = (existingTodoList) => {
+    console.log("プレイリスト名を編集 existingTodoList");
+    console.log(existingTodoList);
     this.refs.popupDialog.show();
     this.setState({
-      dialogTitle: 'Update a TodoList',
+      dialogTitle: 'プレイリスト名を編集',
       id: existingTodoList.id,
       title: '',
-      name: existingTodoList.name,
+      playlist_title: existingTodoList.playlist_title,
       isAddNew: false
     });
   }
 
-  // Show dialog when add new 'todoList
+  // Show dialog when add new 'playList
   showDialogComponentForAdd = () => {
     this.refs.popupDialog.show();
 
     // Clear data before insertiong  挿入前のデータを消去
     this.setState({
       dialogTitle: '新しいリストを追加します',
-      name: '',
+      playlist_title: '',
       title: '',
       isAddNew: true
     });
@@ -62,69 +64,45 @@ class PopupDialogComponent extends Component {
               style={styles.textInput}
               placeholder={'Enter TodoList name'}
               autoCorrecrt={false}
-              onChangeText={(text) => this.setState({ name: text })} value={this.state.name}
+              onChangeText={(text) => {
+                this.setState({ playlist_title: text });
+              }}
+              value={this.state.playlist_title}
             />
 
             <View style={{ flexDirection: 'row' }}>
               <TouchableOpacity
                 style={styles.button}
                 onPress={() => {
-                  if (this.state.name.trim() == ''){
-                    alert('Please enter todoList name');
+                  if (this.state.playlist_title.trim() == ''){
+                    alert('Please enter playList name');
                     return;
                   }
 
                   this.refs.popupDialog.dismiss(() => {
                     if (this.state.isAddNew == true) {
-                      // const newTodoList = {
-                      //   id: Math.floor(Date.now() /1000),
-                      //   name: this.state.name,
-                      //   title: new Date(),
-                      //   creationDate: new Date(),
-                      //   playlist: [
-                      //     {
-                      //       id: Math.floor(Date.now() /123),
-                      //       playlistKey: '1536146773', // 曲を追加するときに設定してあげる必要がある
-                      //       type: 'string',
-                      //       title: 'Good Goocbye',
-                      //       artist: 'ONE OK ROCK',
-                      //       albumTitle: 'test',
-                      //       albumArtUrl: 'https://www.google.co.jp/',
-                      //       audioUrl: 'https://www.google.co.jp/'
-                      //     },
-                      //     {
-                      //       id: Math.floor(Date.now() /456),
-                      //       playlistKey: '1536146773',
-                      //       type: 'string',
-                      //       title: '真夏のサイダー',
-                      //       artist: 'DAOKO',
-                      //       albumTitle: 'UTUTU',
-                      //       albumArtUrl: 'https://www.google.co.jp/',
-                      //       audioUrl: 'https://www.google.co.jp/'
-                      //     }
-                      //   ]
-                      // };
-
                       const insertPlayListItem = {
                         id: Math.floor(Date.now() /1000),
                         type: 'string',
-                        playlist_title: this.state.name,
+                        playlist_title: this.state.playlist_title,
                         created_at: new Date(),
                         update_at: new Date(),
                       };
 
                       insertNewTodoList(insertPlayListItem).then().catch((error) => {
-                        alert(`Insert new todoList error ${error}`);
+                        alert(`Insert new playList error ${error}`);
                       });
                     } else {
-                      const todoList = {
+                      console.log('else runnnnnn')
+                      const playLists = {
                         id: this.state.id,
-                        name: this.state.name,
-                        title: this.state.name,
+                        playlist_title: this.state.playlist_title,
+                        update_at: new Date(),
                       };
+                      console.log(this.state.playlist_title)
 
-                      updateTodoList(todoList).then().catch((error) => {
-                        alert(`Update todoList error ${error}`);
+                      updatePlayListTitle(playLists).then().catch((error) => {
+                        alert(`Update playList error ${error}`);
                       });
                     }
                   });

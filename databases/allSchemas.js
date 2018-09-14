@@ -33,9 +33,8 @@ export const CategoriesFramuAlbumSchema = {
 
 export const SongSchema = {
   name : SONG_SCHEMA,
-  primaryKey: 'id',
+  primaryKey: 'song_id',
   properties: {
-    id: 'int',
     song_id: 'string', // 曲ID
     song: 'string',
     title: 'string', // 曲名
@@ -84,27 +83,15 @@ const databaseOptions = {
 
 /* saveNewSong
  --------------------------------------------- */
-//  export const saveNewSong = track => new Promise((resolve, reject) => {
-//   // Realmオブジェクトを作成してローカルDBに保存
-//   Realm.open(databaseOptions).then(realm => {
-
-//     realm.write(() => {
-//       realm.create(SONG_SCHEMA, track);
-//       resolve(track);
-//     });
-//   }).catch((error) => reject(error));
-// });
-
-
-
-export const saveNewSong = (track) => new Promise((resolve, reject) => {
+export const saveNewSong = (track, index) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
-
-    realm.write(() => {
-      realm.create(SONG_SCHEMA, track)
-      resolve();
-    });
+    for(var i = 0; i <= index; i++){
+      realm.write(() => {
+        realm.create(SONG_SCHEMA, track, true)
+        resolve();
+      });
+    }
 
   }).catch((error) => reject(error));
 });
@@ -142,16 +129,16 @@ export const insertNewTodoList = newTodoList => new Promise((resolve, reject) =>
 });
 
 
-/* updateTodoList
+/* updatePlayListTitle
  --------------------------------------------- */
-export const updateTodoList = playLists => new Promise((resolve, reject) => {
+export const updatePlayListTitle = (playLists) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let updatingTodoList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playLists.id);
+      let updatingPlayList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playLists.id);
 
       // 必要に応じて他のフィールドを更新することができます
-      updatingTodoList.name = playLists.name;
+      updatingPlayList.playlist_title = playLists.playlist_title;
       resolve();
     });
   }).catch((error) => reject(error));

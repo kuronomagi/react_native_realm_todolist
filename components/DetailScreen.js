@@ -7,7 +7,7 @@ import {
   FlatList
 } from 'react-native';
 
-import { updateTodoList, deleteTodoList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack } from '../databases/allSchemas';
+import { updatePlayListTitle, deleteTodoList, queryAllTodoLists, filterTodoLists, insertTodos2TodoList, getPlaylistsTrack } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 

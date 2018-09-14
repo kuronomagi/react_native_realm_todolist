@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput, NativeModules} from 'react-native';
-import { updateTodoList, deletePlayList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
+import { updatePlayListTitle, deletePlayList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
   insertNewTrack, saveNewSong, SongSchema } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
@@ -47,15 +47,15 @@ let FlatListItem = props => {
   }
   showDeleteConfirmation = () => {
     Alert.alert(
-      'Delete',
-      'Delete a playList',
+      'プレイリストを削除',
+      '一度プレイリストを削除すると、二度と復活できません。',
       [
         {
-          text: 'No', onPress: () => { }, // Do nothing
+          text: 'キャンセル', onPress: () => { }, // Do nothing
           style: 'cancel'
         },
         {
-          text: 'Yes', onPress: () => {
+          text: '削除', onPress: () => {
             deletePlayList(id).then().catch(error => {
               alert(`Failed to delete playList with id = ${id}, error=${error}`);
             });
@@ -107,55 +107,47 @@ export default class TodoListComponent extends Component {
     this._fetch();
   }
 
-  // _fetch = () => {
-  //   RNFetchBlob
-  //   .config({
-  //     fileCache : false,
-  //   })
-  //   .fetch('GET','https://github.com/kuronomagi/react-native-video-test/raw/master/music/alubum.json', {
-  //   })
-  //   .then((res) => {
-  //     console.log('fetch run');
-  //   })
-  // }
-
   _fetch = () => {
     console.log('jsonにアクセス');
-    fetch('https://github.com/kuronomagi/react-native-video-test/raw/master/music/alubum.json')
+    fetch('https://github.com/kuronomagi/react-native-video-test/raw/master/music/alubum3.json')
       .then((response) => response.json())
       .then((responseJson) => {
         let albumData = responseJson;
-        console.log(albumData);
-        console.log(new Date());
+        let TarckPreference = [];
 
-        console.log(albumData[0].song);
+        albumData.map((track, index) => {
+          TarckPreference = {
+            song_id: track.song_id, // 曲ID
+            song: track.song, // MP3
+            title: track.title, // 曲名
+            title_sort: track.title_sort, // 曲名（ソート）
+            album: track.album, // アルバム名
+            album_sort: track.album_sort, // アルバム名（ソート）
+            album_artist: track.artist, // アルバムアーティスト
+            album_artist_sort: track.artist_sort, // アルバムアーティスト（ソート）
+            artist: track.artist, // アーティスト名
+            artist_sort: track.artist_sort, // アーティスト名（ソート）
+            composer: track.composer, // 作曲者
+            composer_sort: track.composer_sort, // 作曲者（ソート）
+            genre: track.genre, // ジャンル
+            release_year: track.release_year,
+            last_add_at: new Date(), // 最後に追加した日
+            last_play_at: new Date(), // 最後に再生した日
+            primary_artwork: track.primary_artwork,
+            secondary_artwork: track.secondary_artwork,
+          };
 
-        const TarckPreference = {
-          id: Math.floor(Date.now() /1000),
-          song_id: albumData[0].song_id, // 曲ID
-          song: albumData[0].song,
-          title: albumData[0].title, // 曲名
-          title_sort: albumData[0].title_sort, // 曲名（ソート）
-          album: albumData[0].album, // アルバム名
-          album_sort: albumData[0].album_sort, // アルバム名（ソート）
-          album_artist: albumData[0].artist, // アルバムアーティスト
-          album_artist_sort: albumData[0].artist_sort, // アルバムアーティスト（ソート）
-          artist: albumData[0].artist, // アーティスト名
-          artist_sort: albumData[0].artist_sort, // アーティスト名（ソート）
-          composer: albumData[0].composer, // 作曲者
-          composer_sort: albumData[0].composer_sort, // 作曲者（ソート）
-          genre: albumData[0].genre, // ジャンル
-          release_year: albumData[0].release_year,
-          last_add_at: new Date(), // 最後に追加した日
-          last_play_at: new Date(), // 最後に再生した日
-          primary_artwork: albumData[0].primary_artwork,
-          secondary_artwork: albumData[0].secondary_artwork,
-        };
-
-        saveNewSong(TarckPreference).then(console.log('成功')).catch((error) => {
-          alert(`TarckPreference error ${error}`);
+          saveNewSong(TarckPreference, index)
+            .then(
+            )
+            .catch((error) => {
+              alert(`TarckPreference error ${error}`);
+          });
         });
 
+        saveNewSong(TarckPreference).then().catch((error) => {
+          alert(`TarckPreference error ${error}`);
+        });
 
       })
       .catch((error) => {

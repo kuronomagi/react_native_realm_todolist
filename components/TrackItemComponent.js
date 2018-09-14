@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { updateTodoList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
+import { updatePlayListTitle, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
   insertNewTrack, queryActiveTrak, deleteTrackItem, insertTrackItem } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
@@ -13,7 +13,7 @@ let FlatListItem = props => {
   const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
-      id, name, title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId
+      id, name, title, playlist_title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId
     });
   }
   showDeleteConfirmation = () => {
