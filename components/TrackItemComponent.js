@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
 import { updatePlayListTitle, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
-  insertNewTrack, queryActiveTrak, deleteTrackItem, insertTrackItem } from '../databases/allSchemas';
+  insertNewTrack, queryCategoriesFramuAlbum, deleteTrackItem, insertTrackItem } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
@@ -70,12 +70,12 @@ export default class TrackItemComponent extends Component {
       });
     }
 
-    queryActiveTrak(playlistDetailId).then(queryActiveTrak => {
-      console.log('成功');
-      this.setState({ playList: queryActiveTrak });
+    queryCategoriesFramuAlbum(playlistDetailId).then(queryCategoriesFramuAlbum => {
+      console.log('queryCategoriesFramuAlbum 成功');
+      this.setState({ playList: queryCategoriesFramuAlbum });
       console.log(this.state.playList);
     }).catch(error => {
-      console.log('失敗');
+      console.log('queryCategoriesFramuAlbum 失敗');
       this.setState({ playList: [] });
     });
   }

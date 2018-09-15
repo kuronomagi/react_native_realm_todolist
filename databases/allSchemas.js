@@ -15,7 +15,7 @@ export const TrackSchema = {
       type: 'string', // これがないとエラー
       playlist_title: 'string', // プレイリストタイトル
       created_at: 'string', // 作成日
-      update_at: 'string' // 更新日
+      update_at: 'string', // 更新日
   }
 };
 
@@ -25,8 +25,12 @@ export const CategoriesFramuAlbumSchema = {
   primaryKey: 'id',
   properties: {
     id: 'int',
-    song_id: { type: 'list', objectType: SONG_SCHEMA },
-    playlist_id: { type: 'list', objectType: PLAYLIST_SCHEMA },
+    // songs: 'Song[]',
+    // playlists: 'PlayList[]'
+    owner_song_id: 'string',
+    owner_playlist_id: 'string',
+    owner_song: { type: 'linkingObjects', objectType: SONG_SCHEMA, property: 'owner'},
+    owner_playlist: { type: 'linkingObjects', objectType: PLAYLIST_SCHEMA, property: 'owner'},
   }
 };
 
@@ -53,19 +57,23 @@ export const SongSchema = {
     last_play_at: 'date', // 最後に再生した日
     primary_artwork: 'string',
     secondary_artwork: 'string',
+
+    owner: 'CategoriesFramuAlbum[]',
   }
 };
 
 
 export const PlaylistListSchema = {
   name: PLAYLIST_SCHEMA,
-  primaryKey: 'id',
+  primaryKey: 'playlist_id',
   properties: {
-    id: 'int', // プレイリストID
+    playlist_id: 'int', // プレイリストID
     type: 'string', // これがないとエラー
     playlist_title: 'string', // プレイリストタイトル
     created_at: 'date', // 作成日
     update_at: 'date', // 更新日
+
+    owner: 'CategoriesFramuAlbum[]',
   }
 };
 
@@ -115,15 +123,15 @@ export const insertNewTrack = playlist => new Promise((resolve, reject) => {
 });
 
 
-/* insertNewTodoList
+/* insertNewPlayList
  * resolveは「Success」、rejectは「Failed」
  --------------------------------------------- */
-export const insertNewTodoList = newTodoList => new Promise((resolve, reject) => {
+export const insertNewPlayList = insertPlayListItem => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      realm.create(PLAYLIST_SCHEMA, newTodoList);
-      resolve(newTodoList);
+      realm.create(PLAYLIST_SCHEMA, insertPlayListItem);
+      resolve(insertPlayListItem);
     });
   }).catch((error) => reject(error));
 });
@@ -135,7 +143,7 @@ export const updatePlayListTitle = (playLists) => new Promise((resolve, reject) 
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let updatingPlayList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playLists.id);
+      let updatingPlayList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playLists.playlist_id);
 
       // 必要に応じて他のフィールドを更新することができます
       updatingPlayList.playlist_title = playLists.playlist_title;
@@ -323,20 +331,15 @@ export const deleteTrackItem = playlistKey => new Promise((resolve, reject) => {
 });
 
 
-/* queryActiveTrak
- * プレイリスト詳細ページの選択したリストIDをサーチ
+/* queryCategoriesFramuAlbum
+ * 中間テーブルにプレイリストを追加
  --------------------------------------------- */
-export const queryActiveTrak = (playlistDetailId) => new Promise((resolve, reject) => {
+export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
+
   Realm.open(databaseOptions).then(realm => {
-    let targetTrak = realm.objects(TRACK_SCHEMA)
-      // Like:name like %abc% in 'SQL'
-      // .filtered('id = 1536139059');
-      // .filtered(`id = ${playlistDetailId}`);
-      // .filtered('id == $0', playlistDetailId);
-
-      .filtered('playlistKey == $0', playlistDetailId);
-
+    let targetTrak = realm.objects(PLAYLIST_SCHEMA)
+      .filtered('playlist_id == $0', playlistDetailId);
     resolve(targetTrak);
   }).catch((error) => {
     reject(error);
@@ -344,6 +347,25 @@ export const queryActiveTrak = (playlistDetailId) => new Promise((resolve, rejec
 });
 
 
+// /* queryCategoriesFramuAlbum
+//  * 中間テーブルにプレイリストを追加
+//  --------------------------------------------- */
+//  export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((resolve, reject) => {
+//   // Realmオブジェクトを作成してローカルDBに保存
+//   Realm.open(databaseOptions).then(realm => {
+//     let targetTrak = realm.objects(TRACK_SCHEMA)
+//       // Like:name like %abc% in 'SQL'
+//       // .filtered('id = 1536139059');
+//       // .filtered(`id = ${playlistDetailId}`);
+//       // .filtered('id == $0', playlistDetailId);
+
+//       .filtered('playlistKey == $0', playlistDetailId);
+
+//     resolve(targetTrak);
+//   }).catch((error) => {
+//     reject(error);
+//   });
+// });
 
 
 export default new Realm(databaseOptions);

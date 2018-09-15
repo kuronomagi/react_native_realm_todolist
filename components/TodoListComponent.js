@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput, NativeModules} from 'react-native';
-import { updatePlayListTitle, deletePlayList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
-  insertNewTrack, saveNewSong, SongSchema } from '../databases/allSchemas';
+import {FlatList, TouchableOpacity, Alert, StyleSheet, Text, View, TextInput, NativeModules} from 'react-native';
+import { deletePlayList, queryAllPlayLists, filterPlayLists, getPlaylistsTrack,
+  saveNewSong } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
@@ -39,10 +39,10 @@ RNFetchBlob
 
 
 let FlatListItem = props => {
-  const { itemIndex, id, title, playlist_title, creationDate, popupDialogComponent, onPressItem } = props;
+  const { itemIndex, playlist_id, title, playlist_title, creationDate, popupDialogComponent, onPressItem } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
-      id, title, playlist_title
+      playlist_id, title, playlist_title
     });
   }
   showDeleteConfirmation = () => {
@@ -56,8 +56,8 @@ let FlatListItem = props => {
         },
         {
           text: '削除', onPress: () => {
-            deletePlayList(id).then().catch(error => {
-              alert(`Failed to delete playList with id = ${id}, error=${error}`);
+            deletePlayList(playlist_id).then().catch(error => {
+              alert(`Failed to delete playList with id = ${playlist_id}, error=${error}`);
             });
           }
         },
@@ -216,17 +216,17 @@ export default class TodoListComponent extends Component {
           popupDialogComponent={this.refs.popupDialogComponent}
           onPressItem={() => {
 
-            getPlaylistsTrack(item.id).then(() => {
+            getPlaylistsTrack(item.playlist_id).then(() => {
 
               // 画面推移
-              this.props.navigation.navigate('todolist_detail_screen', item.id)
+              this.props.navigation.navigate('todolist_detail_screen', item.playlist_id)
 
             }).catch(error => {
               alert(`読み取れませんでした。 Error: ${JSON.stringify(error)}`)
             });
 
           }} />}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.playlist_id}
         />
         <PopupDialogComponent ref={'popupDialogComponent'} />
       </View>

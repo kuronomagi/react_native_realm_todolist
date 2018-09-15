@@ -11,13 +11,13 @@ import {
 import PopupDialog, { SlideAnimation, DialogTitle } from 'react-native-popup-dialog';
 
 // Database
-import { insertNewTodoList, updatePlayListTitle } from '../databases/allSchemas';
+import { insertNewPlayList, updatePlayListTitle } from '../databases/allSchemas';
 
 class PopupDialogComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: 0,
+      playlist_id: 0,
       playlist_title: '',
       title: '',
       isAddNew: true
@@ -31,7 +31,7 @@ class PopupDialogComponent extends Component {
     this.refs.popupDialog.show();
     this.setState({
       dialogTitle: 'プレイリスト名を編集',
-      id: existingTodoList.id,
+      playlist_id: existingTodoList.playlist_id,
       title: '',
       playlist_title: existingTodoList.playlist_title,
       isAddNew: false
@@ -82,24 +82,22 @@ class PopupDialogComponent extends Component {
                   this.refs.popupDialog.dismiss(() => {
                     if (this.state.isAddNew == true) {
                       const insertPlayListItem = {
-                        id: Math.floor(Date.now() /1000),
+                        playlist_id: Math.floor(Date.now() /1000),
                         type: 'string',
                         playlist_title: this.state.playlist_title,
                         created_at: new Date(),
                         update_at: new Date(),
                       };
 
-                      insertNewTodoList(insertPlayListItem).then().catch((error) => {
+                      insertNewPlayList(insertPlayListItem).then().catch((error) => {
                         alert(`Insert new playList error ${error}`);
                       });
                     } else {
-                      console.log('else runnnnnn')
                       const playLists = {
-                        id: this.state.id,
+                        playlist_id: this.state.playlist_id,
                         playlist_title: this.state.playlist_title,
                         update_at: new Date(),
                       };
-                      console.log(this.state.playlist_title)
 
                       updatePlayListTitle(playLists).then().catch((error) => {
                         alert(`Update playList error ${error}`);
