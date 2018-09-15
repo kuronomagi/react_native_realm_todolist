@@ -109,7 +109,7 @@ export default class TodoListComponent extends Component {
 
   _fetch = () => {
     console.log('jsonにアクセス');
-    fetch('https://github.com/kuronomagi/react-native-video-test/raw/master/music/alubum3.json')
+    fetch('https://github.com/kuronomagi/react-native-video-test/raw/master/music/alubum.json')
       .then((response) => response.json())
       .then((responseJson) => {
         let albumData = responseJson;

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
 import { updatePlayListTitle, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
-  insertNewTrack, queryCategoriesFramuAlbum, deleteTrackItem, insertTrackItem } from '../databases/allSchemas';
+  insertNewTrack, queryCategoriesFramuAlbum, deleteTrackItem, insertPlayListState } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
@@ -10,7 +10,7 @@ import PopupDialogComponent from './PopupDialogComponents';
 
 
 let FlatListItem = props => {
-  const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, } = props;
+  const { itemIndex, id, name, title, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, playlist_id } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
       id, name, title, playlist_title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId
@@ -33,8 +33,8 @@ let FlatListItem = props => {
       ]} autoClose={true}>
         <TouchableOpacity onPress={onPressItem}>
           <View style={{ backgroundColor: itemIndex % 2 == 0 ? '#eee' : '#FFF' }} >
-            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{albumTitle}</Text>
-            <Text style={{ fontWeight: 'bold', fontSize: 14, margin: 10 }}>{artist}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{playlist_id}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 14, margin: 10 }}>{id}</Text>
           </View>
         </TouchableOpacity>
     </Swipeout>
@@ -48,7 +48,12 @@ export default class TrackItemComponent extends Component {
       playList: [],
       searchedName: ''
     };
-
+    console.log('======== ここから ========')
+    console.log(
+      insertPlayListState(this.props.navigation.state.params).then().catch((error) => {
+        alert(`TarckPreference error ${error}`);
+      })
+    );
 
     this.reloadData();
     realm.addListener('change', () => {
@@ -57,6 +62,18 @@ export default class TrackItemComponent extends Component {
     });
   }
 
+  // componentWillMount() {
+  //   this.setState({ playList: });
+  //   };
+  // }
+
+  // _setPlayListState = () => {
+  //   insertPlayListState(this.props.navigation.state.params).then()((error) => {
+  //     alert(`TarckPreference error ${error}`);
+  //   })
+  // }
+
+
   reloadData = () => {
 
     // react-navigateで第二引数をもってきている
@@ -64,18 +81,16 @@ export default class TrackItemComponent extends Component {
     // let playlistDetailId = '1536217097';
     {console.log(playlistDetailId)}
 
-    insertPressItem = () => {
-      insertTrackItem(playlistDetailId).then().catch((error) => {
-        alert(`IinsertPressItem error ${error}`);
-      });
+    insertPressItem = (playlistDetailId) => {
+      // insertTrackItem(playlistDetailId).then().catch((error) => {
+      //   alert(`IinsertPressItem error ${error}`);
+      // });
     }
 
-    queryCategoriesFramuAlbum(playlistDetailId).then(queryCategoriesFramuAlbum => {
-      console.log('queryCategoriesFramuAlbum 成功');
-      this.setState({ playList: queryCategoriesFramuAlbum });
+    insertPlayListState(this.props.navigation.state.params).then((playLists) => {
+      this.setState({ playList: playLists });
       console.log(this.state.playList);
-    }).catch(error => {
-      console.log('queryCategoriesFramuAlbum 失敗');
+    }).catch((error) => {
       this.setState({ playList: [] });
     });
   }
@@ -107,8 +122,16 @@ export default class TrackItemComponent extends Component {
         />
 
         <TouchableOpacity
-          onPress={insertPressItem}
-        >
+          onPress={() => {
+            queryCategoriesFramuAlbum(this.props.navigation.state.params).then((songList) => {
+              console.log('queryCategoriesFramuAlbum 成功');
+              // this.setState({ playList: songList });
+            }).catch(error => {
+              console.log('queryCategoriesFramuAlbum 失敗');
+              console.log(error);
+              // this.setState({ playList: [] });
+            })
+          }}>
           <Text>INSET BUTTON</Text>
         </TouchableOpacity>
 

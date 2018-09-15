@@ -27,10 +27,13 @@ export const CategoriesFramuAlbumSchema = {
     id: 'int',
     // songs: 'Song[]',
     // playlists: 'PlayList[]'
-    owner_song_id: 'string',
-    owner_playlist_id: 'string',
-    owner_song: { type: 'linkingObjects', objectType: SONG_SCHEMA, property: 'owner'},
-    owner_playlist: { type: 'linkingObjects', objectType: PLAYLIST_SCHEMA, property: 'owner'},
+    // owner_song_id: 'string',
+    // owner_playlist_id: 'string',
+
+    owner_song: 'Song[]',
+    owner_playlist: 'PlayList[]'
+    // owner_song: { type: 'linkingObjects', objectType: SONG_SCHEMA, property: 'owner'},
+    // owner_playlist: { type: 'linkingObjects', objectType: PLAYLIST_SCHEMA, property: 'owner'},
   }
 };
 
@@ -58,12 +61,14 @@ export const SongSchema = {
     primary_artwork: 'string',
     secondary_artwork: 'string',
 
-    owner: 'CategoriesFramuAlbum[]',
+    owner_song_in: { type: 'linkingObjects', objectType: CATEGORIES_FRAMUALBUM_SCHEMA, property: 'owner_song'},
+
+    // owner: 'CategoriesFramuAlbum[]',
   }
 };
 
 
-export const PlaylistListSchema = {
+export const PlayListSchema = {
   name: PLAYLIST_SCHEMA,
   primaryKey: 'playlist_id',
   properties: {
@@ -73,16 +78,33 @@ export const PlaylistListSchema = {
     created_at: 'date', // 作成日
     update_at: 'date', // 更新日
 
-    owner: 'CategoriesFramuAlbum[]',
+    owner_playlist_in: { type: 'linkingObjects', objectType: CATEGORIES_FRAMUALBUM_SCHEMA, property: 'owner_playlist'},
+
+    // owner: 'CategoriesFramuAlbum[]',
   }
 };
 
 
 const databaseOptions = {
   path: 'musicPlayListApp.realm',
-  schema: [PlaylistListSchema, SongSchema, CategoriesFramuAlbumSchema], // スキーマはここに追加
+  schema: [PlayListSchema, SongSchema, CategoriesFramuAlbumSchema], // スキーマはここに追加
   schemaVersion: 0, // optional
 };
+
+
+const randomNum = () => {
+  const len = 8;
+  const num = "0123456789";
+
+  const numLen = num.length;
+  let result = "";
+
+  for(let i = 0; i < len; i++){
+    result += num[Math.floor(Math.random() * numLen)];
+  }
+
+  return result;
+}
 
 
 /* =================================================================
@@ -338,34 +360,46 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
   // Realmオブジェクトを作成してローカルDBに保存
 
   Realm.open(databaseOptions).then(realm => {
-    let targetTrak = realm.objects(PLAYLIST_SCHEMA)
-      .filtered('playlist_id == $0', playlistDetailId);
-    resolve(targetTrak);
+    realm.write(() => {
+      let targetPlayList = realm.objects(PLAYLIST_SCHEMA)
+        .filtered('playlist_id == $0', playlistDetailId);
+
+      let targetSong = realm.objects(SONG_SCHEMA)
+        .filtered('song_id == $0', 'wert5678cvbn');
+
+      let categorieDate = {
+        id: Number(randomNum()),
+        owner_song: targetSong,
+        owner_playlist: targetPlayList
+      }
+
+      realm.create(CATEGORIES_FRAMUALBUM_SCHEMA, categorieDate);
+    resolve(targetSong);
+    });
   }).catch((error) => {
     reject(error);
   });
 });
 
 
-// /* queryCategoriesFramuAlbum
-//  * 中間テーブルにプレイリストを追加
-//  --------------------------------------------- */
-//  export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((resolve, reject) => {
-//   // Realmオブジェクトを作成してローカルDBに保存
-//   Realm.open(databaseOptions).then(realm => {
-//     let targetTrak = realm.objects(TRACK_SCHEMA)
-//       // Like:name like %abc% in 'SQL'
-//       // .filtered('id = 1536139059');
-//       // .filtered(`id = ${playlistDetailId}`);
-//       // .filtered('id == $0', playlistDetailId);
+/* insertPlayListState
+ * プレイ詳細リストのstateに送るデータ
+ --------------------------------------------- */
+ export const insertPlayListState = (playlistDetailId) => new Promise((resolve, reject) => {
 
-//       .filtered('playlistKey == $0', playlistDetailId);
+  Realm.open(databaseOptions).then(realm => {
 
-//     resolve(targetTrak);
-//   }).catch((error) => {
-//     reject(error);
-//   });
-// });
+    // let playlist = realm.objectForPrimaryKey('PlayList', 0);
+    // let songs = playlist.linkingObjects(CATEGORIES_FRAMUALBUM_SCHEMA, 'owner_playlist');
+
+    let targetCategorie = realm.objects(CATEGORIES_FRAMUALBUM_SCHEMA)
+      .filtered('owner_playlist.playlist_id == $0', playlistDetailId);
+    resolve(targetCategorie);
+
+  }).catch((error) => reject(error));
+
+});
+
 
 
 export default new Realm(databaseOptions);
