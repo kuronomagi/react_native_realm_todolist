@@ -1,5 +1,5 @@
 import Realm from 'realm';
-export const CATEGORIES_FRAMUALBUM_SCHEMA = 'CategoriesFramuAlbum';
+export const PLAYLIST_SONG_SCHEMA = 'PlayListSong';
 export const SONG_SCHEMA = 'Song';
 export const PLAYLIST_SCHEMA = 'PlayList';
 
@@ -14,68 +14,108 @@ export const TrackSchema = {
       playlist_id: 'string', // プレイリストID
       type: 'string', // これがないとエラー
       playlist_title: 'string', // プレイリストタイトル
-      created_at: 'date', // 作成日
-      update_at: 'date' // 更新日
+      created_at: 'string', // 作成日
+      update_at: 'string', // 更新日
   }
 };
 
-
 // 中間テーブル
-export const CategoriesFramuAlbumSchema = {
-  name: CATEGORIES_FRAMUALBUM_SCHEMA,
+export const PlayListSong = {
+  name: PLAYLIST_SONG_SCHEMA,
   primaryKey: 'id',
   properties: {
     id: 'int',
-    song_id: { type: 'list', objectType: SONG_SCHEMA },
-    playlist_id: { type: 'list', objectType: PLAYLIST_SCHEMA },
+    owner_song: {type: 'list', objectType: SONG_SCHEMA},
+    owner_playlist: {type: 'list', objectType: PLAYLIST_SCHEMA},
   }
 };
 
 
 export const SongSchema = {
   name : SONG_SCHEMA,
-  primaryKey: 'id',
+  primaryKey: 'song_id',
   properties: {
-    id: 'int', // 曲ID
+    song_id: 'string', // 曲ID
+    song: 'string',
     title: 'string', // 曲名
     title_sort: 'string', // 曲名（ソート）
     album: 'string', // アルバム名
     album_sort: 'string', // アルバム名（ソート）
-    album_srtist: 'string', // アルバムアーティスト
-    album_srtistSort: 'string', // アルバムアーティスト（ソート）
+    album_artist: 'string', // アルバムアーティスト
+    album_artist_sort: 'string', // アルバムアーティスト（ソート）
     artist: 'string', // アーティスト名
     artist_sort: 'string', // アーティスト名（ソート）
     composer: 'string', // 作曲者
     composer_sort: 'string', // 作曲者（ソート）
     genre: 'string', // ジャンル
+    release_year: 'date',
     last_add_at: 'date', // 最後に追加した日
-    last_play_at: 'data', // 最後に再生した日
-    album_art_path: 'string',
-    audio_path: 'string',
+    last_play_at: 'date', // 最後に再生した日
+    primary_artwork: 'string',
+    secondary_artwork: 'string',
+
+    owner_song_in: { type: 'linkingObjects', objectType: PLAYLIST_SONG_SCHEMA, property: 'owner_song'},
 
   }
 };
 
 
-export const PlaylistListSchema = {
+export const PlayListSchema = {
   name: PLAYLIST_SCHEMA,
-  primaryKey: 'id',
+  primaryKey: 'playlist_id',
   properties: {
-    id: 'int', // プレイリストID
+    playlist_id: 'int', // プレイリストID
     type: 'string', // これがないとエラー
     playlist_title: 'string', // プレイリストタイトル
     created_at: 'date', // 作成日
     update_at: 'date', // 更新日
+
+    owner_playlist_in: { type: 'linkingObjects', objectType: PLAYLIST_SONG_SCHEMA, property: 'owner_playlist'},
+
   }
 };
 
 
 const databaseOptions = {
   path: 'musicPlayListApp.realm',
-  schema: [PlaylistListSchema, SongSchema, CategoriesFramuAlbumSchema], // スキーマはここに追加
+  schema: [PlayListSchema, SongSchema, PlayListSong], // スキーマはここに追加
   schemaVersion: 0, // optional
 };
 
+
+const randomNum = () => {
+  const len = 8;
+  const num = '0123456789';
+
+  const numLen = num.length;
+  let result = '';
+
+  for(let i = 0; i < len; i++){
+    result += num[Math.floor(Math.random() * numLen)];
+  }
+
+  return result;
+};
+
+
+/* =================================================================
+* ダウンロードしたアルバムデータをRealmへ保存
+================================================================= /*
+
+/* saveNewSong
+ --------------------------------------------- */
+export const saveNewSong = (track, index) => new Promise((resolve, reject) => {
+  // Realmオブジェクトを作成してローカルDBに保存
+  Realm.open(databaseOptions).then(realm => {
+    for(var i = 0; i <= index; i++){
+      realm.write(() => {
+        realm.create(SONG_SCHEMA, track, true)
+        resolve();
+      });
+    }
+
+  }).catch((error) => reject(error));
+});
 
 
 /* =================================================================
@@ -96,30 +136,30 @@ export const insertNewTrack = playlist => new Promise((resolve, reject) => {
 });
 
 
-/* insertNewTodoList
+/* insertNewPlayList
  * resolveは「Success」、rejectは「Failed」
  --------------------------------------------- */
-export const insertNewTodoList = newTodoList => new Promise((resolve, reject) => {
+export const insertNewPlayList = insertPlayListItem => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      realm.create(PLAYLIST_SCHEMA, newTodoList);
-      resolve(newTodoList);
+      realm.create(PLAYLIST_SCHEMA, insertPlayListItem);
+      resolve(insertPlayListItem);
     });
   }).catch((error) => reject(error));
 });
 
 
-/* updateTodoList
+/* updatePlayListTitle
  --------------------------------------------- */
-export const updateTodoList = playLists => new Promise((resolve, reject) => {
+export const updatePlayListTitle = (playLists) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let updatingTodoList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playLists.id);
+      let updatingPlayList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playLists.playlist_id);
 
       // 必要に応じて他のフィールドを更新することができます
-      updatingTodoList.name = playLists.name;
+      updatingPlayList.playlist_title = playLists.playlist_title;
       resolve();
     });
   }).catch((error) => reject(error));
@@ -253,54 +293,35 @@ export const setPlaylistsData = playLists => new Promise((resolve, reject) => {
 
 /* insertTrackItem
  --------------------------------------------- */
-// export const insertTrackItem = () => new Promise((resolve, reject) => {
-//   // Realmオブジェクトを作成してローカルDBに保存
-//   Realm.open(databaseOptions).then(realm => {
-//     realm.write(() => {
-//       realm.create(TRACK_SCHEMA, {
-//         id: Math.floor(new Date()),
-//         playlistKey: '1536217097', // 曲を追加するときに設定してあげる必要がある
-//         type: 'string',
-//         title: 'Good Goocbye',
-//         artist: 'ONE OK ROCK',
-//         playlist_title: 'test',
-//         albumArtUrl: 'https://www.google.co.jp/',
-//         audioUrl: 'https://www.google.co.jp/'
-//       });
-//       resolve();
-//     });
-//   }).catch((error) => reject(error));
-// });
-
 export const insertTrackItem = (playlistDetailId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
   Realm.open(databaseOptions).then(realm => {
 
     let targetPlayList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playlistDetailId);
 
-    realm.write(() => {
-      const insertItem = {
-          songId: Math.floor(new Date()), // 曲ID
-          title: 'Good Goodbye', // 曲名
-          titleSort: 'ぐっどぐっばい', // 曲名（ソート）
-          album: '35xxxv', // アルバム名
-          albumSort: '35xxxv', // アルバム名（ソート）
-          albumArtist: 'ONE OK ROCK', // アルバムアーティスト
-          albumArtistSort: 'ワンオクロック', // アルバムアーティスト（ソート）
-          artist: 'ONE OK ROCK', // アーティスト名
-          artist_sort: 'ワンオクロック', // アーティスト名（ソート）
-          composer: 'Taka', // 作曲者
-          composerSort: 'たか', // 作曲者（ソート）
-          genre: 'ROCK', // ジャンル
-          lastAddAt: new Date(), // 最後に追加した日
-          lastPlayAt: new Date(), // 最後に再生した日
-          albumArtPath: 'https://www.google.co.jp/',
-          audioPath: 'https://www.google.co.jp/'
-        };
+    // realm.write(() => {
+    //   const insertItem = {
+    //       songId: Math.floor(new Date()), // 曲ID
+    //       title: 'Good Goodbye', // 曲名
+    //       titleSort: 'ぐっどぐっばい', // 曲名（ソート）
+    //       album: '35xxxv', // アルバム名
+    //       albumSort: '35xxxv', // アルバム名（ソート）
+    //       albumArtist: 'ONE OK ROCK', // アルバムアーティスト
+    //       albumArtistSort: 'ワンオクロック', // アルバムアーティスト（ソート）
+    //       artist: 'ONE OK ROCK', // アーティスト名
+    //       artist_sort: 'ワンオクロック', // アーティスト名（ソート）
+    //       composer: 'Taka', // 作曲者
+    //       composerSort: 'たか', // 作曲者（ソート）
+    //       genre: 'ROCK', // ジャンル
+    //       lastAddAt: new Date(), // 最後に追加した日
+    //       lastPlayAt: new Date(), // 最後に再生した日
+    //       albumArtPath: 'https://www.google.co.jp/',
+    //       audioPath: 'https://www.google.co.jp/'
+    //     };
 
-      targetPlayList.playlist.push(insertItem);
-      resolve();
-    });
+    //   targetPlayList.playlist.push(insertItem);
+    //   resolve();
+    // });
 
   }).catch((error) => reject(error));
 });
@@ -323,26 +344,58 @@ export const deleteTrackItem = playlistKey => new Promise((resolve, reject) => {
 });
 
 
-/* queryActiveTrak
- * プレイリスト詳細ページの選択したリストIDをサーチ
+/* queryCategoriesFramuAlbum
+ * 中間テーブルにプレイリストを追加
  --------------------------------------------- */
-export const queryActiveTrak = (playlistDetailId) => new Promise((resolve, reject) => {
+export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((resolve, reject) => {
   // Realmオブジェクトを作成してローカルDBに保存
+
   Realm.open(databaseOptions).then(realm => {
-    let targetTrak = realm.objects(TRACK_SCHEMA)
-      // Like:name like %abc% in 'SQL'
-      // .filtered('id = 1536139059');
-      // .filtered(`id = ${playlistDetailId}`);
-      // .filtered('id == $0', playlistDetailId);
+    realm.write(() => {
+      let targetPlayList = realm.objects(PLAYLIST_SCHEMA)
+        .filtered('playlist_id == $0', playlistDetailId);
 
-      .filtered('playlistKey == $0', playlistDetailId);
+      let targetSong = realm.objects(SONG_SCHEMA)
+        .filtered('song_id == $0', 'wert5678cvbn');
 
-    resolve(targetTrak);
+      let categorieDate = {
+        id: Number(randomNum()),
+        owner_song: targetSong,
+        owner_playlist: targetPlayList
+      }
+
+      realm.create(PLAYLIST_SONG_SCHEMA, categorieDate);
+    resolve(targetSong);
+    });
   }).catch((error) => {
     reject(error);
   });
 });
 
+
+/* insertPlayListState
+ * プレイ詳細リストのstateに送るデータ
+ --------------------------------------------- */
+ export const insertPlayListState = (playlistDetailId) => new Promise((resolve, reject) => {
+
+  Realm.open(databaseOptions).then(realm => {
+
+    let songs = realm.objects(PLAYLIST_SONG_SCHEMA)
+      .filtered('owner_playlist.playlist_id == $0', playlistDetailId);
+
+    let song = '';
+    let songDate = [];
+
+    songs.forEach((song, index) => {
+      // console.log(index);
+      songDate.push(song.owner_song);
+      // console.log(songDate);
+      resolve(songDate);
+    });
+
+  }).catch((error) => reject(error));
+
+});
 
 
 

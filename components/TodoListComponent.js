@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { updateTodoList, deletePlayList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
-  insertNewTrack } from '../databases/allSchemas';
+import {FlatList, TouchableOpacity, Alert, StyleSheet, Text, View, TextInput, NativeModules} from 'react-native';
+import { deletePlayList, queryAllPlayLists, filterPlayLists, getPlaylistsTrack,
+  saveNewSong } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
@@ -17,6 +17,7 @@ import RNFetchBlob from 'rn-fetch-blob';
 
 import RNMusicMetadata from 'react-native-music-metadata';
 
+console.log(realm.path);
 //-------------　InsertFetchAlbum ここから --------------
 RNFetchBlob
   .config({
@@ -60,25 +61,25 @@ RNFetchBlob
 
 
 let FlatListItem = props => {
-  const { itemIndex, id, title, playlist_title, creationDate, popupDialogComponent, onPressItem } = props;
+  const { itemIndex, playlist_id, title, playlist_title, creationDate, popupDialogComponent, onPressItem } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
-      id, title, playlist_title
+      playlist_id, title, playlist_title
     });
   }
   showDeleteConfirmation = () => {
     Alert.alert(
-      'Delete',
-      'Delete a playList',
+      'プレイリストを削除',
+      '一度プレイリストを削除すると、二度と復活できません。',
       [
         {
-          text: 'No', onPress: () => { }, // Do nothing
+          text: 'キャンセル', onPress: () => { }, // Do nothing
           style: 'cancel'
         },
         {
-          text: 'Yes', onPress: () => {
-            deletePlayList(id).then().catch(error => {
-              alert(`Failed to delete playList with id = ${id}, error=${error}`);
+          text: '削除', onPress: () => {
+            deletePlayList(playlist_id).then().catch(error => {
+              alert(`Failed to delete playList with id = ${playlist_id}, error=${error}`);
             });
           }
         },
@@ -122,6 +123,58 @@ export default class TodoListComponent extends Component {
       // Run this if 'realm' DB changed  'realm' DBが変更された場合はこれを実行してください
       this.reloadData();
     });
+  }
+
+  componentWillMount() {
+    this._fetch();
+  }
+
+  _fetch = () => {
+    console.log('jsonにアクセス');
+    fetch('https://github.com/kuronomagi/react-native-video-test/raw/master/music/alubum2.json')
+      .then((response) => response.json())
+      .then((responseJson) => {
+        let albumData = responseJson;
+        let TarckPreference = [];
+
+        albumData.map((track, index) => {
+          TarckPreference = {
+            song_id: track.song_id, // 曲ID
+            song: track.song, // MP3
+            title: track.title, // 曲名
+            title_sort: track.title_sort, // 曲名（ソート）
+            album: track.album, // アルバム名
+            album_sort: track.album_sort, // アルバム名（ソート）
+            album_artist: track.artist, // アルバムアーティスト
+            album_artist_sort: track.artist_sort, // アルバムアーティスト（ソート）
+            artist: track.artist, // アーティスト名
+            artist_sort: track.artist_sort, // アーティスト名（ソート）
+            composer: track.composer, // 作曲者
+            composer_sort: track.composer_sort, // 作曲者（ソート）
+            genre: track.genre, // ジャンル
+            release_year: track.release_year,
+            last_add_at: new Date(), // 最後に追加した日
+            last_play_at: new Date(), // 最後に再生した日
+            primary_artwork: track.primary_artwork,
+            secondary_artwork: track.secondary_artwork,
+          };
+
+          saveNewSong(TarckPreference, index)
+            .then(
+            )
+            .catch((error) => {
+              alert(`TarckPreference error ${error}`);
+          });
+        });
+
+        saveNewSong(TarckPreference).then().catch((error) => {
+          alert(`TarckPreference error ${error}`);
+        });
+
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   sort = () => {
@@ -173,6 +226,11 @@ export default class TodoListComponent extends Component {
           }}
           value={this.state.searchedName}
         />
+        <TouchableOpacity
+          onPress={() => NativeModules.Mp3GetAll.getFile()}
+        >
+        <Text>BUTTON</Text>
+        </TouchableOpacity>
         <FlatList
           style={styles.flatList}
 
@@ -182,17 +240,17 @@ export default class TodoListComponent extends Component {
           popupDialogComponent={this.refs.popupDialogComponent}
           onPressItem={() => {
 
-            getPlaylistsTrack(item.id).then(() => {
+            getPlaylistsTrack(item.playlist_id).then(() => {
 
               // 画面推移
-              this.props.navigation.navigate('todolist_detail_screen', item.id)
+              this.props.navigation.navigate('todolist_detail_screen', item.playlist_id)
 
             }).catch(error => {
               alert(`読み取れませんでした。 Error: ${JSON.stringify(error)}`)
             });
 
           }} />}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.playlist_id}
         />
         <PopupDialogComponent ref={'popupDialogComponent'} />
       </View>

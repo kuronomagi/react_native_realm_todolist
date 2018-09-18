@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { updateTodoList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
-  insertNewTrack, queryActiveTrak, deleteTrackItem, insertTrackItem } from '../databases/allSchemas';
+import { updatePlayListTitle, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
+  insertNewTrack, queryCategoriesFramuAlbum, deleteTrackItem, insertPlayListState } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 import Swipeout from 'react-native-swipeout';
 
@@ -10,10 +10,12 @@ import PopupDialogComponent from './PopupDialogComponents';
 
 
 let FlatListItem = props => {
-  const { itemIndex, id, name, title, creationDate, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, } = props;
+  const { itemIndex, id, name, title, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, song_id } = props;
+  // console.log('#### ここから props ####')
+  // console.log(props);
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
-      id, name, title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId
+      id, name, title, playlist_title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, song_id
     });
   }
   showDeleteConfirmation = () => {
@@ -33,8 +35,8 @@ let FlatListItem = props => {
       ]} autoClose={true}>
         <TouchableOpacity onPress={onPressItem}>
           <View style={{ backgroundColor: itemIndex % 2 == 0 ? '#eee' : '#FFF' }} >
-            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{albumTitle}</Text>
-            <Text style={{ fontWeight: 'bold', fontSize: 14, margin: 10 }}>{artist}</Text>
+            <Text style={{ color: 'black',fontWeight: 'bold', fontSize: 18, margin: 10 }}>{props[0].song_id}</Text>
+            <Text style={{ color: 'black',fontWeight: 'bold', fontSize: 14, margin: 10 }}>{props[0].title}</Text>
           </View>
         </TouchableOpacity>
     </Swipeout>
@@ -48,7 +50,12 @@ export default class TrackItemComponent extends Component {
       playList: [],
       searchedName: ''
     };
-
+    console.log('======== ここから ========')
+    console.log(
+      insertPlayListState(this.props.navigation.state.params).then().catch((error) => {
+        alert(`TarckPreference error ${error}`);
+      })
+    );
 
     this.reloadData();
     realm.addListener('change', () => {
@@ -61,21 +68,21 @@ export default class TrackItemComponent extends Component {
 
     // react-navigateで第二引数をもってきている
     let playlistDetailId = this.props.navigation.state.params;
-    // let playlistDetailId = '1536217097';
     {console.log(playlistDetailId)}
 
-    insertPressItem = () => {
-      insertTrackItem(playlistDetailId).then().catch((error) => {
-        alert(`Insert new todoList error ${error}`);
-      });
+    insertPressItem = (playlistDetailId) => {
+      // insertTrackItem(playlistDetailId).then().catch((error) => {
+      //   alert(`IinsertPressItem error ${error}`);
+      // });
     }
 
-    queryActiveTrak(playlistDetailId).then(queryActiveTrak => {
-      console.log('成功');
-      this.setState({ playList: queryActiveTrak });
-      console.log(this.state.playList);
-    }).catch(error => {
-      console.log('失敗');
+    insertPlayListState(this.props.navigation.state.params).then((songDate) => {
+
+      this.setState({ playList: songDate });
+      // console.log('======== ここから this.state.playList ========')
+      // console.log(this.state.playList);
+
+    }).catch((error) => {
       this.setState({ playList: [] });
     });
   }
@@ -94,6 +101,7 @@ export default class TrackItemComponent extends Component {
           data={this.state.playList}
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
           popupDialogComponent={this.refs.popupDialogComponent}
+
           onPressItem={() => {
             getPlaylistsTrack(item.id).then(() => {
               console.log('描画');
@@ -107,8 +115,14 @@ export default class TrackItemComponent extends Component {
         />
 
         <TouchableOpacity
-          onPress={insertPressItem}
-        >
+          onPress={() => {
+            queryCategoriesFramuAlbum(this.props.navigation.state.params).then((songList) => {
+              console.log('queryCategoriesFramuAlbum 成功');
+            }).catch(error => {
+              console.log('queryCategoriesFramuAlbum 失敗');
+              console.log(error);
+            })
+          }}>
           <Text>INSET BUTTON</Text>
         </TouchableOpacity>
 
