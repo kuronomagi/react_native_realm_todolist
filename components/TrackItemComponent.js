@@ -57,11 +57,29 @@ export default class TrackItemComponent extends Component {
       })
     );
 
+
+    /* ページの初期表示
+    --------------------------------------------- */
+    insertPlayListState(this.props.navigation.state.params).then((songDate) => {
+      this.setState({ playList: songDate });
+    }).catch((error) => {
+      this.setState({ playList: [] });
+    });
+
+
+    /* stateが更新されたとき
+    --------------------------------------------- */
     this.reloadData();
     realm.addListener('change', () => {
       // Run this if 'realm' DB changed  'realm' DBが変更された場合はこれを実行してください
       this.reloadData();
     });
+
+
+    /* stateが更新されたとき
+    --------------------------------------------- */
+    let playlistDetailId = this.props.navigation.state.params;
+    {console.log(playlistDetailId)}
   }
 
 
@@ -78,11 +96,9 @@ export default class TrackItemComponent extends Component {
     return result;
   };
 
-  reloadData = () => {
 
-    // react-navigateで第二引数をもってきている
-    let playlistDetailId = this.props.navigation.state.params;
-    {console.log(playlistDetailId)}
+  reloadData = () => {
+    {console.log('reloadDataを実行')}
 
     insertPressItem = (playlistDetailId) => {
       // insertTrackItem(playlistDetailId).then().catch((error) => {
@@ -90,15 +106,14 @@ export default class TrackItemComponent extends Component {
       // });
     }
 
-    insertPlayListState(this.props.navigation.state.params).then((songDate) => {
+    // insertPlayListState(this.props.navigation.state.params).then((songDate) => {
+    //   this.setState({ playList: songDate });
+    //   // console.log('======== ここから this.state.playList ========')
+    //   // console.log(this.state.playList);
 
-      this.setState({ playList: songDate });
-      // console.log('======== ここから this.state.playList ========')
-      // console.log(this.state.playList);
-
-    }).catch((error) => {
-      this.setState({ playList: [] });
-    });
+    // }).catch((error) => {
+    //   this.setState({ playList: [] });
+    // });
   }
 
   render() {
@@ -110,7 +125,6 @@ export default class TrackItemComponent extends Component {
         {console.log(this.state.playList)}
         <FlatList
           style={styles.flatList}
-          // keyExtractor={this._keyExtractor}
           // Save this array to 'state'
           data={this.state.playList}
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
@@ -123,10 +137,8 @@ export default class TrackItemComponent extends Component {
               alert(`読み取れませんでした。 Error: ${JSON.stringify(error)}`)
             });
           }}
-
           />}
-          // keyExtractor={item => item.id}
-          keyExtractor={this._keyExtractor}
+          keyExtractor={(item, index) => index.toString()}
         />
 
         <TouchableOpacity
@@ -137,6 +149,16 @@ export default class TrackItemComponent extends Component {
               console.log('queryCategoriesFramuAlbum 失敗');
               console.log(error);
             })
+
+            // 曲追加
+            insertPlayListState(this.props.navigation.state.params).then((songDate) => {
+              this.setState({ playList: songDate });
+              // console.log('======== ここから this.state.playList ========')
+              // console.log(this.state.playList);
+
+            }).catch((error) => {
+              this.setState({ playList: [] });
+            });
           }}>
           <Text>INSET BUTTON</Text>
         </TouchableOpacity>

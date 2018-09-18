@@ -164,7 +164,7 @@ export default class TodoListComponent extends Component {
     }).catch((error) => {
       this.setState({ playList: [] });
     });
-    console.log('reloadData');
+    console.log('reloadDataしました');
   }
 
   render() {
@@ -222,7 +222,8 @@ export default class TodoListComponent extends Component {
             });
 
           }} />}
-          keyExtractor={item => item.playlist_id}
+          // keyExtractor={item => item.playlist_id}
+          keyExtractor={(item, index) => index.toString()}
         />
         <PopupDialogComponent ref={'popupDialogComponent'} />
       </View>

@@ -336,7 +336,7 @@ export const deleteTrackItem = playlistKey => new Promise((resolve, reject) => {
       let deletingTrackList = realm.objectForPrimaryKey(TRACK_SCHEMA, playlistKey);
 
       // Delete 'playLists' => delete 'playlist' of 'playLists' / 'playLists'の 'playlist'を削除する
-      // realm.delete(deletingTrackList.playlist);
+      realm.delete(deletingTrackList.playlist);
       realm.delete(deletingTrackList);
       resolve();
     });
