@@ -10,10 +10,10 @@ import PopupDialogComponent from './PopupDialogComponents';
 
 
 let FlatListItem = props => {
-  const { itemIndex, id, name, title, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, playlist_id } = props;
+  const { itemIndex, id, name, title, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, song_id } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
-      id, name, title, playlist_title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId
+      id, name, title, playlist_title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, song_id
     });
   }
   showDeleteConfirmation = () => {
@@ -33,8 +33,8 @@ let FlatListItem = props => {
       ]} autoClose={true}>
         <TouchableOpacity onPress={onPressItem}>
           <View style={{ backgroundColor: itemIndex % 2 == 0 ? '#eee' : '#FFF' }} >
-            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{playlist_id}</Text>
-            <Text style={{ fontWeight: 'bold', fontSize: 14, margin: 10 }}>{id}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{song_id}</Text>
+            <Text style={{ fontWeight: 'bold', fontSize: 14, margin: 10 }}>{title}</Text>
           </View>
         </TouchableOpacity>
     </Swipeout>
@@ -62,23 +62,10 @@ export default class TrackItemComponent extends Component {
     });
   }
 
-  // componentWillMount() {
-  //   this.setState({ playList: });
-  //   };
-  // }
-
-  // _setPlayListState = () => {
-  //   insertPlayListState(this.props.navigation.state.params).then()((error) => {
-  //     alert(`TarckPreference error ${error}`);
-  //   })
-  // }
-
-
   reloadData = () => {
 
     // react-navigateで第二引数をもってきている
     let playlistDetailId = this.props.navigation.state.params;
-    // let playlistDetailId = '1536217097';
     {console.log(playlistDetailId)}
 
     insertPressItem = (playlistDetailId) => {
@@ -89,6 +76,7 @@ export default class TrackItemComponent extends Component {
 
     insertPlayListState(this.props.navigation.state.params).then((playLists) => {
       this.setState({ playList: playLists });
+      console.log('======== ここから this.state.playList ========')
       console.log(this.state.playList);
     }).catch((error) => {
       this.setState({ playList: [] });
@@ -125,11 +113,9 @@ export default class TrackItemComponent extends Component {
           onPress={() => {
             queryCategoriesFramuAlbum(this.props.navigation.state.params).then((songList) => {
               console.log('queryCategoriesFramuAlbum 成功');
-              // this.setState({ playList: songList });
             }).catch(error => {
               console.log('queryCategoriesFramuAlbum 失敗');
               console.log(error);
-              // this.setState({ playList: [] });
             })
           }}>
           <Text>INSET BUTTON</Text>

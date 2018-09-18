@@ -1,5 +1,5 @@
 import Realm from 'realm';
-export const CATEGORIES_FRAMUALBUM_SCHEMA = 'CategoriesFramuAlbum';
+export const PLAYLIST_SONG_SCHEMA = 'PlayListSong';
 export const SONG_SCHEMA = 'Song';
 export const PLAYLIST_SCHEMA = 'PlayList';
 
@@ -20,20 +20,13 @@ export const TrackSchema = {
 };
 
 // 中間テーブル
-export const CategoriesFramuAlbumSchema = {
-  name: CATEGORIES_FRAMUALBUM_SCHEMA,
+export const PlayListSong = {
+  name: PLAYLIST_SONG_SCHEMA,
   primaryKey: 'id',
   properties: {
     id: 'int',
-    // songs: 'Song[]',
-    // playlists: 'PlayList[]'
-    // owner_song_id: 'string',
-    // owner_playlist_id: 'string',
-
     owner_song: 'Song[]',
     owner_playlist: 'PlayList[]'
-    // owner_song: { type: 'linkingObjects', objectType: SONG_SCHEMA, property: 'owner'},
-    // owner_playlist: { type: 'linkingObjects', objectType: PLAYLIST_SCHEMA, property: 'owner'},
   }
 };
 
@@ -61,9 +54,8 @@ export const SongSchema = {
     primary_artwork: 'string',
     secondary_artwork: 'string',
 
-    owner_song_in: { type: 'linkingObjects', objectType: CATEGORIES_FRAMUALBUM_SCHEMA, property: 'owner_song'},
+    owner_song_in: { type: 'linkingObjects', objectType: PLAYLIST_SONG_SCHEMA, property: 'owner_song'},
 
-    // owner: 'CategoriesFramuAlbum[]',
   }
 };
 
@@ -78,16 +70,15 @@ export const PlayListSchema = {
     created_at: 'date', // 作成日
     update_at: 'date', // 更新日
 
-    owner_playlist_in: { type: 'linkingObjects', objectType: CATEGORIES_FRAMUALBUM_SCHEMA, property: 'owner_playlist'},
+    owner_playlist_in: { type: 'linkingObjects', objectType: PLAYLIST_SONG_SCHEMA, property: 'owner_playlist'},
 
-    // owner: 'CategoriesFramuAlbum[]',
   }
 };
 
 
 const databaseOptions = {
   path: 'musicPlayListApp.realm',
-  schema: [PlayListSchema, SongSchema, CategoriesFramuAlbumSchema], // スキーマはここに追加
+  schema: [PlayListSchema, SongSchema, PlayListSong], // スキーマはここに追加
   schemaVersion: 0, // optional
 };
 
@@ -373,7 +364,7 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
         owner_playlist: targetPlayList
       }
 
-      realm.create(CATEGORIES_FRAMUALBUM_SCHEMA, categorieDate);
+      realm.create(PLAYLIST_SONG_SCHEMA, categorieDate);
     resolve(targetSong);
     });
   }).catch((error) => {
@@ -390,11 +381,13 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
   Realm.open(databaseOptions).then(realm => {
 
     // let playlist = realm.objectForPrimaryKey('PlayList', 0);
-    // let songs = playlist.linkingObjects(CATEGORIES_FRAMUALBUM_SCHEMA, 'owner_playlist');
+    // let songs = playlist.linkingObjects(PLAYLIST_SONG_SCHEMA, 'owner_playlist');
 
-    let targetCategorie = realm.objects(CATEGORIES_FRAMUALBUM_SCHEMA)
+    let targetCategorie = realm.objects(PLAYLIST_SONG_SCHEMA)
       .filtered('owner_playlist.playlist_id == $0', playlistDetailId);
-    resolve(targetCategorie);
+
+    let targetSong = targetCategorie;
+    resolve(targetSong);
 
   }).catch((error) => reject(error));
 
