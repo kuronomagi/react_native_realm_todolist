@@ -25,8 +25,8 @@ export const PlayListSong = {
   primaryKey: 'id',
   properties: {
     id: 'int',
-    owner_song: {type: 'list', objectType: SONG_SCHEMA},
-    owner_playlist: {type: 'list', objectType: PLAYLIST_SCHEMA},
+    owner_song: 'Song[]',
+    owner_playlist: 'PlayList[]',
   }
 };
 
@@ -362,7 +362,7 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
         id: Number(randomNum()),
         owner_song: targetSong,
         owner_playlist: targetPlayList
-      }
+      };
 
       realm.create(PLAYLIST_SONG_SCHEMA, categorieDate);
     resolve(targetSong);

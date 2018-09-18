@@ -64,6 +64,20 @@ export default class TrackItemComponent extends Component {
     });
   }
 
+
+  _keyExtractor = () => {
+    const len = 8;
+    const num = '0123456789';
+
+    const numLen = num.length;
+    let result = '';
+
+    for(let i = 0; i < len; i++){
+      result += num[Math.floor(Math.random() * numLen)];
+    }
+    return result;
+  };
+
   reloadData = () => {
 
     // react-navigateで第二引数をもってきている
@@ -96,7 +110,7 @@ export default class TrackItemComponent extends Component {
         {console.log(this.state.playList)}
         <FlatList
           style={styles.flatList}
-
+          // keyExtractor={this._keyExtractor}
           // Save this array to 'state'
           data={this.state.playList}
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
@@ -111,7 +125,8 @@ export default class TrackItemComponent extends Component {
           }}
 
           />}
-          keyExtractor={item => item.id}
+          // keyExtractor={item => item.id}
+          keyExtractor={this._keyExtractor}
         />
 
         <TouchableOpacity

@@ -30,10 +30,6 @@ RNFetchBlob
     console.log('fetch run');
     // the temp file path with file extension `png`
     console.log('ファイルを保存しました。 ', res.path());
-
-    NativeModules.Mp3GetAll.getFile();
-    NativeModules.Mp3GetAll.viewDidLoad();
-    NativeModules.Mp3GetAll.didReceiveMemoryWarning();
   })
 //-------------　InsertFetchAlbum ここまで -------------
 
