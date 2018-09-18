@@ -25,8 +25,8 @@ export const PlayListSong = {
   primaryKey: 'id',
   properties: {
     id: 'int',
-    owner_song: 'Song[]',
-    owner_playlist: 'PlayList[]'
+    owner_song: {type: 'list', objectType: SONG_SCHEMA},
+    owner_playlist: {type: 'list', objectType: PLAYLIST_SCHEMA},
   }
 };
 
@@ -85,17 +85,17 @@ const databaseOptions = {
 
 const randomNum = () => {
   const len = 8;
-  const num = "0123456789";
+  const num = '0123456789';
 
   const numLen = num.length;
-  let result = "";
+  let result = '';
 
   for(let i = 0; i < len; i++){
     result += num[Math.floor(Math.random() * numLen)];
   }
 
   return result;
-}
+};
 
 
 /* =================================================================
@@ -380,14 +380,18 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
 
   Realm.open(databaseOptions).then(realm => {
 
-    // let playlist = realm.objectForPrimaryKey('PlayList', 0);
-    // let songs = playlist.linkingObjects(PLAYLIST_SONG_SCHEMA, 'owner_playlist');
-
-    let targetCategorie = realm.objects(PLAYLIST_SONG_SCHEMA)
+    let songs = realm.objects(PLAYLIST_SONG_SCHEMA)
       .filtered('owner_playlist.playlist_id == $0', playlistDetailId);
 
-    let targetSong = targetCategorie;
-    resolve(targetSong);
+    let song = '';
+    let songDate = [];
+
+    songs.forEach((song, index) => {
+      // console.log(index);
+      songDate.push(song.owner_song);
+      // console.log(songDate);
+      resolve(songDate);
+    });
 
   }).catch((error) => reject(error));
 

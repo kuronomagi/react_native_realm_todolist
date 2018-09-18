@@ -11,6 +11,8 @@ import PopupDialogComponent from './PopupDialogComponents';
 
 let FlatListItem = props => {
   const { itemIndex, id, name, title, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, song_id } = props;
+  // console.log('#### ここから props ####')
+  // console.log(props);
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
       id, name, title, playlist_title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, song_id
@@ -33,8 +35,8 @@ let FlatListItem = props => {
       ]} autoClose={true}>
         <TouchableOpacity onPress={onPressItem}>
           <View style={{ backgroundColor: itemIndex % 2 == 0 ? '#eee' : '#FFF' }} >
-            <Text style={{ fontWeight: 'bold', fontSize: 18, margin: 10 }}>{song_id}</Text>
-            <Text style={{ fontWeight: 'bold', fontSize: 14, margin: 10 }}>{title}</Text>
+            <Text style={{ color: 'black',fontWeight: 'bold', fontSize: 18, margin: 10 }}>{props[0].song_id}</Text>
+            <Text style={{ color: 'black',fontWeight: 'bold', fontSize: 14, margin: 10 }}>{props[0].title}</Text>
           </View>
         </TouchableOpacity>
     </Swipeout>
@@ -74,10 +76,12 @@ export default class TrackItemComponent extends Component {
       // });
     }
 
-    insertPlayListState(this.props.navigation.state.params).then((playLists) => {
-      this.setState({ playList: playLists });
-      console.log('======== ここから this.state.playList ========')
-      console.log(this.state.playList);
+    insertPlayListState(this.props.navigation.state.params).then((songDate) => {
+
+      this.setState({ playList: songDate });
+      // console.log('======== ここから this.state.playList ========')
+      // console.log(this.state.playList);
+
     }).catch((error) => {
       this.setState({ playList: [] });
     });
@@ -97,6 +101,7 @@ export default class TrackItemComponent extends Component {
           data={this.state.playList}
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
           popupDialogComponent={this.refs.popupDialogComponent}
+
           onPressItem={() => {
             getPlaylistsTrack(item.id).then(() => {
               console.log('描画');
