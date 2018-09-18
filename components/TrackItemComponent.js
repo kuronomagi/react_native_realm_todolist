@@ -69,7 +69,7 @@ export default class TrackItemComponent extends Component {
 
     /* stateが更新されたとき
     --------------------------------------------- */
-    this.reloadData();
+    // this.reloadData();
     realm.addListener('change', () => {
       // Run this if 'realm' DB changed  'realm' DBが変更された場合はこれを実行してください
       this.reloadData();
