@@ -339,10 +339,10 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
 export const deleteTrackItem = (targetSongId, playlistNavigation) => new Promise((resolve, reject) => {
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let deleteTrack = realm.objects(PLAYLIST_SONG_SCHEMA)
+      let deletingTrack = realm.objects(PLAYLIST_SONG_SCHEMA)
         .filtered('owner_song.song_id == $0 AND owner_playlist.playlist_id == $1', targetSongId, playlistNavigation);
 
-      realm.delete(deleteTrack);
+      realm.delete(deletingTrack);
     });
 
     // Trackを削除した後のプレイリストデータ
@@ -365,11 +365,17 @@ export const deleteTrackItem = (targetSongId, playlistNavigation) => new Promise
 export const deletePlayList = playlistId => new Promise((resolve, reject) => {
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
-      let deletingTodoList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playlistId);
 
-      // Delete 'playLists' => delete 'playlist' of 'playLists' / 'playLists'の 'playlist'を削除する
-      // realm.delete(deletingTodoList.playlist);
-      realm.delete(deletingTodoList);
+      // プレイリストの削除
+      let deletingPlayList = realm.objectForPrimaryKey(PLAYLIST_SCHEMA, playlistId);
+
+      // プレイリストの関連Trackの削除
+      let deletingPlayListTrack = realm.objects(PLAYLIST_SONG_SCHEMA)
+        .filtered('owner_playlist.playlist_id == $0', playlistId);
+
+      realm.delete(deletingPlayListTrack);
+
+      realm.delete(deletingPlayList);
       resolve();
     });
   }).catch((error) => reject(error));
