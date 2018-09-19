@@ -10,17 +10,17 @@ import PopupDialogComponent from './PopupDialogComponents';
 
 
 let FlatListItem = props => {
-  const { itemIndex, id, name, title, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, song_id } = props;
-  // console.log('#### ここから props ####')
-  // console.log(props);
+  const { itemIndex, playlistNavigation, id, name, title, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, song_id } = props;
   showEditModal = () => {
     popupDialogComponent.showDialogComponentForUpdate({
-      id, name, title, playlist_title, albumTitle, artist, albumArtUrl, audioUrl, playlistDetailId, song_id
+      id, name, title, playlist_title, albumTitle, artist, albumArtUrl, audioUrl, song_id
     });
   }
   showDeleteConfirmation = () => {
-    deleteTrackItem(id).then().catch(error => {
-      alert(`Failed to delete todoList with id = ${id}, error=${error}`);
+    console.log('ナビゲーションは');
+    console.log(playlistNavigation);
+    deleteTrackItem(props[0].song_id).then().catch(error => {
+      alert(`詳細ページの曲削除に失敗 with id = ${props[0].song_id}, error=${error}`);
     });
   }
 
@@ -47,23 +47,19 @@ export default class TrackItemComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      playList: [],
+      ownerSong: [],
       searchedName: ''
     };
-    console.log('======== ここから ========')
-    console.log(
-      insertPlayListState(this.props.navigation.state.params).then().catch((error) => {
-        alert(`TarckPreference error ${error}`);
-      })
-    );
 
+    naviParams = this.props.navigation.state.params;
 
     /* ページの初期表示
     --------------------------------------------- */
-    insertPlayListState(this.props.navigation.state.params).then((songDate) => {
-      this.setState({ playList: songDate });
+    insertPlayListState(this.props.navigation.state.params).then((ownerSongDates) => {
+      console.log(ownerSongDates);
+      this.setState({ ownerSong: ownerSongDates });
     }).catch((error) => {
-      this.setState({ playList: [] });
+      this.setState({ ownerSong: [] });
     });
 
 
@@ -107,14 +103,15 @@ export default class TrackItemComponent extends Component {
     }
 
     // insertPlayListState(this.props.navigation.state.params).then((songDate) => {
-    //   this.setState({ playList: songDate });
-    //   // console.log('======== ここから this.state.playList ========')
-    //   // console.log(this.state.playList);
+    //   this.setState({ ownerSong: songDate });
+    //   // console.log('======== ここから this.state.ownerSong ========')
+    //   // console.log(this.state.ownerSong);
 
     // }).catch((error) => {
-    //   this.setState({ playList: [] });
+    //   this.setState({ ownerSong: [] });
     // });
   }
+  
 
   render() {
 
@@ -122,13 +119,14 @@ export default class TrackItemComponent extends Component {
       <View style={styles.container}>
         <Text>Trackのコンポネ</Text>
         {console.log('run')}
-        {console.log(this.state.playList)}
+        {console.log(this.state.ownerSong)}
         <FlatList
           style={styles.flatList}
           // Save this array to 'state'
-          data={this.state.playList}
+          data={this.state.ownerSong}
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
           popupDialogComponent={this.refs.popupDialogComponent}
+          playlistNavigation={this.props.navigation.state.params}
 
           onPressItem={() => {
             getPlaylistsTrack(item.id).then(() => {
@@ -151,13 +149,10 @@ export default class TrackItemComponent extends Component {
             })
 
             // 曲追加
-            insertPlayListState(this.props.navigation.state.params).then((songDate) => {
-              this.setState({ playList: songDate });
-              // console.log('======== ここから this.state.playList ========')
-              // console.log(this.state.playList);
-
+            insertPlayListState(this.props.navigation.state.params).then((ownerSongDates) => {
+              this.setState({ ownerSong: ownerSongDates });
             }).catch((error) => {
-              this.setState({ playList: [] });
+              this.setState({ ownerSong: [] });
             });
           }}>
           <Text>INSET BUTTON</Text>
