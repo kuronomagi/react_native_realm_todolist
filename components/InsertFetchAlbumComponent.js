@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import {FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
-import { deletePlayList, queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
+import { FlatList, TouchableOpacity, Alert ,Platform, StyleSheet, Text, View, TextInput} from 'react-native';
+import { queryAllPlayLists, filterPlayLists, insertTodos2TodoList, getPlaylistsTrack,
   insertNewTrack } from '../databases/allSchemas';
 import realm from '../databases/allSchemas';
 

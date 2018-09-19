@@ -289,7 +289,7 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
         .filtered('playlist_id == $0', playlistDetailId);
 
       let targetSong = realm.objects(SONG_SCHEMA)
-        .filtered('song_id == $0', 'wert5678cvbn');
+        .filtered('song_id == $0', 'wert5678cvbn'); // wert5678cvbn  5678vbhnjmk6fyg7u
 
       let categorieDate = {
         id: Number(randomNum()),
@@ -313,26 +313,10 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
 
   Realm.open(databaseOptions).then(realm => {
 
-    let songs = realm.objects(PLAYLIST_SONG_SCHEMA)
-      .filtered('owner_playlist.playlist_id == $0', playlistDetailId);
-
-
-    // let song = '';
-    // let ownerSongDate = [];
-    // let ownerPlayListDate = [];
-
-    // songs.forEach((song, index) => {
-    //   // console.log(index);
-    //   ownerSongDate.push(song.owner_song);
-    //   ownerPlayListDate.push(song.owner_playlist);
-    //   // console.log(songDate);
-
-    //   let ownerSongDates = [ownerSongDate, ownerPlayListDate];
-    //   resolve(ownerSongDates);
-    // });
-
     let song = '';
     let songDate = [];
+    let songs = realm.objects(PLAYLIST_SONG_SCHEMA)
+      .filtered('owner_playlist.playlist_id == $0', playlistDetailId);
 
     songs.forEach((song, index) => {
       // console.log(index);
@@ -352,18 +336,26 @@ export const queryCategoriesFramuAlbum = (playlistDetailId) => new Promise((reso
 
 /* deleteTrackItem
  --------------------------------------------- */
-export const deleteTrackItem = (targetSongId) => new Promise((resolve, reject) => {
+export const deleteTrackItem = (targetSongId, playlistNavigation) => new Promise((resolve, reject) => {
   Realm.open(databaseOptions).then(realm => {
     realm.write(() => {
+      let deleteTrack = realm.objects(PLAYLIST_SONG_SCHEMA)
+        .filtered('owner_song.song_id == $0 AND owner_playlist.playlist_id == $1', targetSongId, playlistNavigation);
 
-
-      let deletingTrackList = realm.objectForPrimaryKey(PLAYLIST_SONG_SCHEMA, targetSongId);
-
-      // // Delete 'playLists' => delete 'playlist' of 'playLists' / 'playLists'の 'playlist'を削除する
-      // realm.delete(deletingTrackList.playlist);
-      // realm.delete(deletingTrackList);
-      // resolve();
+      realm.delete(deleteTrack);
     });
+
+    // Trackを削除した後のプレイリストデータ
+    let track = '';
+    let PlayListDate = [];
+    let deleteAfterPlayList = realm.objects(PLAYLIST_SONG_SCHEMA)
+      .filtered('owner_playlist.playlist_id == $0', playlistNavigation);
+
+    deleteAfterPlayList.forEach((track, index) => {
+      PlayListDate.push(track.owner_song);
+      resolve(PlayListDate);
+    });
+    // resolve();
   }).catch((error) => reject(error));
 });
 

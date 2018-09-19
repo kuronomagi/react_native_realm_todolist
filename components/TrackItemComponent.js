@@ -8,7 +8,6 @@ import Swipeout from 'react-native-swipeout';
 import HeaderComponent from './HeaderComponent';
 import PopupDialogComponent from './PopupDialogComponents';
 
-
 let FlatListItem = props => {
   const { itemIndex, playlistNavigation, id, name, title, popupDialogComponent, onPressItem, albumTitle, artist, albumArtUrl, audioUrl, song_id } = props;
   showEditModal = () => {
@@ -17,10 +16,10 @@ let FlatListItem = props => {
     });
   }
   showDeleteConfirmation = () => {
-    console.log('ナビゲーションは');
-    console.log(playlistNavigation);
-    deleteTrackItem(props[0].song_id).then().catch(error => {
-      alert(`詳細ページの曲削除に失敗 with id = ${props[0].song_id}, error=${error}`);
+    deleteTrackItem(props[0].song_id, playlistNavigation).then((songDate) => {
+      this.setState({ ownerSong: songDate })
+    }).catch((error) => {
+      // alert(`曲削除でエラーが発生しました エラーIDは ${props[0].song_id}です, error=${error}`);
     });
   }
 
@@ -65,9 +64,9 @@ export default class TrackItemComponent extends Component {
 
     /* stateが更新されたとき
     --------------------------------------------- */
-    // this.reloadData();
+    this.reloadData();
     realm.addListener('change', () => {
-      // Run this if 'realm' DB changed  'realm' DBが変更された場合はこれを実行してください
+      // Run this if 'realm' DB changed  'realm' DBが変更された場合に実行
       this.reloadData();
     });
 
@@ -96,22 +95,17 @@ export default class TrackItemComponent extends Component {
   reloadData = () => {
     {console.log('reloadDataを実行')}
 
-    insertPressItem = (playlistDetailId) => {
-      // insertTrackItem(playlistDetailId).then().catch((error) => {
-      //   alert(`IinsertPressItem error ${error}`);
-      // });
-    }
-
-    // insertPlayListState(this.props.navigation.state.params).then((songDate) => {
-    //   this.setState({ ownerSong: songDate });
-    //   // console.log('======== ここから this.state.ownerSong ========')
-    //   // console.log(this.state.ownerSong);
-
-    // }).catch((error) => {
-    //   this.setState({ ownerSong: [] });
-    // });
+    insertPlayListState(this.props.navigation.state.params).then((ownerSongDates) => {
+      console.log('===== 前　insertPlayListStateを更新した =====')
+      this.setState({ ownerSong: ownerSongDates });
+      console.log(this.state.ownerSong);
+      console.log('===== 後　insertPlayListStateを更新した =====')
+    }).catch((error) => {
+      console.log('reloadData　エラー');
+      this.setState({ ownerSong: [] });
+    });
   }
-  
+
 
   render() {
 
@@ -124,6 +118,7 @@ export default class TrackItemComponent extends Component {
           style={styles.flatList}
           // Save this array to 'state'
           data={this.state.ownerSong}
+          extraData={this.state.ownerSong}
           renderItem={({item, index}) => <FlatListItem {...item} itemIndex={index}
           popupDialogComponent={this.refs.popupDialogComponent}
           playlistNavigation={this.props.navigation.state.params}
